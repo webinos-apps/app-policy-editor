@@ -1,0 +1,15 @@
+# private key files
+./keys/*
+
+# the unsigned widget package
+./build/policyeditor.wgt
+
+# webinos.js
+./webinos.js
+
+# backup files
+*~
+
+# vi swap file
+*.swp
+
