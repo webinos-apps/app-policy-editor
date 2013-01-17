@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="http://webinos.org/policyeditor" version="0.1.0">
+  <name>The webinos Policy Editor</name>
+  <description>
+    Create security and privacy rules for your personal zone
+  </description>
+  <content src="index.html" />
+  <icon src="" />
+  <author>The webinos project</author>
+  
+  <!-- features needed -->
+  <feature name="http://webinos.org/api/file" required="true" />
+  
+  <!-- privacy policies -->
+  <DataHandlingPolicy PolicyId="#current">
+    <AuthorizationsSet>
+      <AuthzUseForPurpose>
+        <Purpose>http://www.w3.org/2002/01/P3Pv1/current</Purpose>
+      </AuthzUseForPurpose>
+    </AuthorizationsSet>
+    <ObligationsSet />
+  </DataHandlingPolicy>
+  
+  <!-- mapping policies to APIs -->
+  <ProvisionalActions>
+    <ProvisionalAction>
+      <AttributeValue>http://webinos.org/api/file</AttributeValue>
+      <AttributeValue>#current</AttributeValue>
+      <DeveloperProvidedDescription language="EN">
+        Your policies are stored in files on the file system
+      </DeveloperProvidedDescription>
+    </ProvisionalAction>
+  </ProvisionalActions>
+</widget>
+
