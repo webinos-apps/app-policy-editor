@@ -14,6 +14,6 @@ if [ -e $UNSIGNED_APP ]; then
 fi
 
 # Zip all the html, javascript, CSS, images and other information.
-zip $UNSIGNED_APP *.html *.js *.css ./fonts/* ./img/* ./certificates/*.pem config.xml -x ./webinos.js
+zip -r $UNSIGNED_APP *.html *.js *.css ./fonts/* ./img/* ./certificates/*.pem config.xml -x ./webinos.js -x */*~
 
 
