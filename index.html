@@ -58,29 +58,47 @@
 		</div>
 
 		<div id="placesPolicies" class="content">
+			<select>
+				<option>Peter</option>
+				<option>Steve</option>
+				<option>Manfred Albrecht Freiherr von Richthofen</option>
+			</select>
+
 			<div class="places-titles">
-				<h1 class="places-categories-title"></h1>
-				<h1 class="places-allow-title">Allow</h1>
-				<h1 class="places-deny-title">Deny</h1>
+				<h1 class="places-categories-title">Profiles<span>+</span></h1>
+				<h1 class="places-allow-title">Allow<span>+</span></h1>
+				<h1 class="places-prompt-title">Prompt<span>+</span></h1>
+				<h1 class="places-deny-title">Deny<span>+</span></h1>
 			</div>
 
 			<div id="places-categories">
-				<div>Home</div>
-				<div>Office</div>
-				<div class="selected">Trip to dad's</div>
-				<div>Misc</div>
+				<div>Home<span>-</span></div>
+				<div>Office<span>-</span></div>
+				<div class="selected">Trip to dad's<span>-</span></div>
+				<div>Misc<span>-</span></div>
 			</div>
-			<div id="places-allow">
-				<div>Navigation</div>
-				<div>Pets</div>
-				<div>Sharing</div>
+			<div id="places-allow" class="column">
+				<div draggable="true"><b>Navigation</b>@Kids in Focus<span>-</span></div>
+				<div draggable="true"><b>Pets</b>@Kids in Focus<span>-</span></div>
+				<div draggable="true"><b>Sharing</b>@Webinos Travel<span>-</span></div>
 			</div>
-			<div id="places-deny">
-				<div>Navigation</div>
+			<div id="places-prompt" class="column">
+				<div draggable="true"><b>Obey</b>@Consume<span>-</span></div>
+			</div>
+			<div id="places-deny" class="column">
+				<div draggable="true"><b>Navigation</b>@Spy on your loved ones<span>-</span></div>
 			</div>
 		</div>
 
 		<div id="storesSettings" class="content">
+			<h3>Allow apps to be installed from those stores:</h3>
+			<div id="storeListContainer"></div>
+			<hr>
+			<div id="unknown-location">
+				<h3>Allow apps to be installed from other locations:</h3>
+				<div class="permissions-controls" id="unk-loc-per-con"></div>
+				<div id="unk-loc-explained" class="info">"Allow once" will allow installation for the next application only, then it will change to "Deny".</div>
+			</div>
 		</div>
 	</div>
 

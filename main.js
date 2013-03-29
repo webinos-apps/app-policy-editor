@@ -150,12 +150,9 @@ function selectItem(elements, active) {
 		console.log("selectItem: bad object type");
 	}
 
-	for(var i in elements) {
+	for(var i=0, j=elements.length; i<j; i++) {
 		if(i == active) {
 			addClass(elements[i], 'selected');
-			continue;
-		}
-		if(typeof elements[i] != 'object') { //to skip for now possible array's "length"; TODO! do it better
 			continue;
 		}
 		removeClass(elements[i], 'selected');
@@ -255,6 +252,61 @@ function drawPermissionButtons(container, buttons, active) {
 
 	container.appendChild(docFragment);
 }
+
+
+/* DRAG & DROP */
+
+
+function handleDragStart(e) { // this / e.target is the source node.
+	this.style.opacity = '0.4';
+	UIdata.dragSrcEl = this;
+	e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) { // this / e.target is the current hover target.
+	if (e.preventDefault) {
+		e.preventDefault(); // Necessary. Allows us to drop.
+	}
+	e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+	return false;
+}
+
+function handleDragEnter(e) { // this / e.target is the current hover target.
+	addClass(this, 'over');
+	UIdata.dragDestEl = this;
+}
+
+function handleDragLeave(e) { // this / e.target is previous target element.
+	removeClass(this, 'over');
+}
+
+function handleDrop(e) { // this / e.target is current target element.
+	if (e.stopPropagation) {
+		e.stopPropagation(); // stops the browser from redirecting.
+	}
+	if (UIdata.dragSrcEl != this) {
+		this.appendChild(UIdata.dragSrcEl);
+	}
+	return false;
+}
+
+function handleDragEnd(e) { // this/e.target is the source node.
+	this.style.opacity = '1';
+	removeClass(UIdata.dragDestEl, 'over');
+}
+
+var draggables = document.querySelectorAll('[draggable]');
+[].forEach.call(draggables, function(draggable) {
+	draggable.addEventListener('dragstart', handleDragStart, false);
+	draggable.addEventListener('dragend', handleDragEnd, false);
+});
+var cols = document.querySelectorAll('.column');
+[].forEach.call(cols, function(col) {
+	col.addEventListener('dragenter', handleDragEnter, false)
+	col.addEventListener('dragover', handleDragOver, false);
+	col.addEventListener('dragleave', handleDragLeave, false);
+	col.addEventListener('drop', handleDrop, false);
+});
 
 
 /* DATE MANIPULATION */
@@ -472,7 +524,7 @@ var drawQuickSettings = function() {
 
 
 var drawStoreList = function() {
-	var storeListContainer = document.getElementById('storesSettings'),
+	var storeListContainer = document.getElementById('storeListContainer'),
 		html = '',
 		stores = UIdata.stores,
 		i = 0,
@@ -491,14 +543,6 @@ var drawStoreList = function() {
 				'<label for="store'+i+'">'+ stores[i].name +'</label>' +
 			'</div>';
 	}
-
-	html += '' +
-		'<hr>' +
-		'<div id="unknown-location">' +
-			'<div>Allow apps to be installed from other locations</div>' +
-			'<div class="permissions-controls" id="unk-loc-per-con"></div>' +
-			'<div id="unk-loc-explained" class="info">"Allow once" will allow installation for the next application only, then it will change to "Deny".</div>' +
-		'</div>';
 
 	storeListContainer.innerHTML = html;
 
