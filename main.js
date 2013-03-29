@@ -261,6 +261,19 @@ function handleDragStart(e) { // this / e.target is the source node.
 	this.style.opacity = '0.4';
 	UIdata.dragSrcEl = this;
 	e.dataTransfer.effectAllowed = 'move';
+	e.dataTransfer.setData("text/plain", ""); //firefox
+	console.log('drag start');
+	console.log(this);
+}
+
+function handleDragEnter(e) { // this / e.target is the current hover target.
+	if (e.preventDefault) {
+		e.preventDefault(); // Necessary. Allows us to drop.
+	}
+	addClass(this, 'over');
+	UIdata.dragDestEl = this;
+	console.log('drag enter');
+	console.log(this);
 }
 
 function handleDragOver(e) { // this / e.target is the current hover target.
@@ -268,16 +281,15 @@ function handleDragOver(e) { // this / e.target is the current hover target.
 		e.preventDefault(); // Necessary. Allows us to drop.
 	}
 	e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+	console.log('drag over');
+	console.log(this);
 	return false;
-}
-
-function handleDragEnter(e) { // this / e.target is the current hover target.
-	addClass(this, 'over');
-	UIdata.dragDestEl = this;
 }
 
 function handleDragLeave(e) { // this / e.target is previous target element.
 	removeClass(this, 'over');
+	console.log('drag leave');
+	console.log(this);
 }
 
 function handleDrop(e) { // this / e.target is current target element.
@@ -287,12 +299,16 @@ function handleDrop(e) { // this / e.target is current target element.
 	if (UIdata.dragSrcEl != this) {
 		this.appendChild(UIdata.dragSrcEl);
 	}
+	console.log('drag drop');
+	console.log(this);
 	return false;
 }
 
 function handleDragEnd(e) { // this/e.target is the source node.
 	this.style.opacity = '1';
 	removeClass(UIdata.dragDestEl, 'over');
+	console.log('drag end');
+	console.log(this);
 }
 
 var draggables = document.querySelectorAll('[draggable]');
@@ -302,6 +318,7 @@ var draggables = document.querySelectorAll('[draggable]');
 });
 var cols = document.querySelectorAll('.column');
 [].forEach.call(cols, function(col) {
+	console.log(col);
 	col.addEventListener('dragenter', handleDragEnter, false)
 	col.addEventListener('dragover', handleDragOver, false);
 	col.addEventListener('dragleave', handleDragLeave, false);
