@@ -94,13 +94,24 @@ select {
 	width: 100%;
 	background: #0084ff;
 	font-size: 120%;
-	margin-bottom: 1em;
 	border: 1px solid #000;
 	color: #fff;
+	margin: 2px 0;
+}
+input {
+	border: 1px solid #0084ff;
+	height: 1.9em;
+	text-indent: 5px;
+	margin: 2px 0;
 }
 option {
 	color: #0084ff;
 	background-color: #FFFFFF;
+}
+textarea {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
 .webinoslogo {
@@ -575,6 +586,7 @@ color: #bbb;
 	background: #0084FF;
 }
 
+#popup-addProfile,
 #popup-addToPolicy {
 	width: 300px;
 }
@@ -631,25 +643,31 @@ color: #bbb;
 	/*border-bottom: 4px solid #EEE;
 	margin-bottom: 10px;
 	padding-bottom: 10px;*/
+	overflow: hidden;
+	margin-top: 1em;
+}
+.places-profiles-title, .places-allow-title, .places-deny-title, .places-prompt-title {
+	float: left;
+	margin-left: 1%;
 }
 
-#places-categories, #places-allow, #places-deny, #places-prompt {
-	display: inline-block;
-	vertical-align: top;
-	min-height: 90%;
+#places-profiles, #places-allow, #places-deny, #places-prompt {
+	min-height: 88%;
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	float: left;
+	margin-left: 1%;
 }
-#places-categories,
-.places-categories-title {
-	width: 20%;
+#places-profiles,
+.places-profiles-title {
+	width: 21%;
 }
 #places-allow, #places-deny, #places-prompt,
 .places-allow-title, .places-deny-title, .places-prompt-title {
 	width: 25%;
 }
-.places-categories-title {
+.places-profiles-title {
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -660,8 +678,8 @@ color: #bbb;
 	/*font-family: 'OpenSansRegular';
 	border-bottom: 1px dashed #0084ff;*/
 }
-#places-categories span, #places-allow span, #places-deny span, #places-prompt span,
-.places-categories-title span, .places-allow-title span, .places-deny-title span, .places-prompt-title span {
+#places-profiles span, #places-allow span, #places-deny span, #places-prompt span,
+.places-profiles-title span, .places-allow-title span, .places-deny-title span, .places-prompt-title span {
 	display: none;
 	position: absolute;
 	top: 5px;
@@ -672,14 +690,14 @@ color: #bbb;
 	text-align: center;
 	cursor: pointer;
 }
-#places-categories span {
+#places-profiles span {
 	top: 3px;
 }
-#places-categories span, #places-allow span, #places-deny span, #places-prompt span {
+#places-profiles span, #places-allow span, #places-deny span, #places-prompt span {
 	font-size: 20px;
 }
-#places-categories div:hover span, #places-allow div:hover span, #places-deny div:hover span, #places-prompt div:hover span,
-.places-categories-title:hover span, .places-allow-title:hover span, .places-deny-title:hover span, .places-prompt-title:hover span {
+#places-profiles div:hover span, #places-allow div:hover span, #places-deny div:hover span, #places-prompt div:hover span,
+.places-profiles-title:hover span, .places-allow-title:hover span, .places-deny-title:hover span, .places-prompt-title:hover span {
 	display: inline-block;
 }
 .places-allow-title, .places-deny-title, .places-prompt-title {
@@ -736,13 +754,13 @@ color: #bbb;
 	border: 1px dotted #aaa;
 }
 
-#places-categories > div {
+#places-profiles > div {
 	padding: 0.5em;
 	cursor: pointer;
 	font-size: 90%;
 	position: relative;
 }
-#places-categories .selected {
+#places-profiles .selected {
 	background: #0084ff;
 	color: #fff;
 	cursor: default;
@@ -1077,8 +1095,7 @@ color: #bbb;
 	}
 
 	#quickSettings-switches, #quickSettings-status,
-	.quickSettings-switches-title, .quickSettings-status-title,
-	.places-categories-title, .places-allow-title, .places-deny-title, .places-prompt-title {
+	.quickSettings-switches-title, .quickSettings-status-title {
 		display: inline-block;
 		vertical-align: top;
 	}

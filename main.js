@@ -56,6 +56,65 @@ mocked.people = [{
 	lastAccess: 1354421200428
 }];
 
+mocked.profiles = [{
+	id: 1,
+	name: "Home"
+}, {
+	id: 2,
+	name: "Office"
+}, {
+	id: 3,
+	name: "Trip to dad's"
+}, {
+	id: 4,
+	name: "Misc"
+}];
+
+mocked.permissions = [{
+	id: 0,
+	profileId: 3,
+	name: "Navigation",
+	app: "Kids in Focus",
+	service: "gps",
+	perm: 1 //1 allow, 0 prompt, -1 deny
+}, {
+	id: 1,
+	profileId: 3,
+	name: "Wifi",
+	app: "Kids in Focus",
+	service: "wifi",
+	perm: 1
+}, {
+	id: 2,
+	profileId: 3,
+	name: "Photos",
+	app: "Webinos Travel",
+	service: "photo",
+	perm: 1
+}, {
+	id: 3,
+	profileId: 3,
+	name: "Camera",
+	app: "Kids in Focus",
+	service: "video",
+	perm: 0
+}, {
+	id: 4,
+	profileId: 3,
+	name: "GPS",
+	app: "Spy on your loved ones",
+	service: "gps",
+	perm: -1
+}, {
+	id: 5,
+	profileId: 1,
+	name: "Camera",
+	app: "Kids in Focus",
+	service: "video",
+	perm: 1
+}];
+
+
 //mock generator
 var generateMockedData = function(arrayObjectName, quantity) {
 	var i = 0,
@@ -82,34 +141,12 @@ var generateMockedData = function(arrayObjectName, quantity) {
 generateMockedData('stores', 3);
 generateMockedData('people', 8);
 
-/*
-//mock generator
-var generateMockedData = function(arrayObjectName, quantity) {
-	var i = 0,
-		randomnumber,
-		destArr = mocked[arrayObjectName];
-
-	for(i; i<quantity; i++) {
-		if(arrayObjectName == 'people') {
-			destArr.push({
-				name: "Loremford Ipsumov "+(i+1),
-				email: "lorips"+(i+1)+"@nonexistent.com",
-				lastAccess: 1341732300428-(123456789*i)
-			});
-		} //else {
-	}
-}
-
-// generate more mocked data
-generateMockedData('people', 8);
-*/
 
 //------------------------->8---CUT-HERE---------------------------------------------------------
 
 
-var UIdata = {};
-UIdata = mocked; //to be changed during the integration
-
+var appData = {};
+appData = mocked; //to be changed during the integration
 
 /* GENERAL */
 
@@ -172,7 +209,12 @@ function showPopup(popup) {
 			j=closeButtons.length;
 
 		for(i; i<j; i++) {
-			closeButtons[i].onclick = function() {closePopup(popup);};
+			closeButtons[i].onclick = (function(thisPopup, buttonAction) {
+				return function() {
+					if(typeof buttonAction == "function") buttonAction(); //previously declared onclick function
+					closePopup(thisPopup);
+				};
+			})(popup, closeButtons[i].onclick);
 		}
 
 		popup.closeButtonsInitialized = true;
@@ -204,7 +246,7 @@ function showPage(linkId) {
 }
 
 function disableQuickSettingsSwitch(name) {
-	var quickSettings = UIdata.quickSettings,
+	var quickSettings = appData.quickSettings,
 		i = 0,
 		j = quickSettings.length;
 
@@ -259,11 +301,11 @@ function drawPermissionButtons(container, buttons, active) {
 
 function handleDragStart(e) { // this / e.target is the source node.
 	this.style.opacity = '0.4';
-	UIdata.dragSrcEl = this;
+	appData.dragSrcEl = this;
 	e.dataTransfer.effectAllowed = 'move';
-	e.dataTransfer.setData("text/plain", ""); //firefox
-	console.log('drag start');
-	console.log(this);
+	e.dataTransfer.setData("text/plain", ""); //firefox needs this
+	//console.log('drag start');
+	//console.log(this);
 }
 
 function handleDragEnter(e) { // this / e.target is the current hover target.
@@ -271,9 +313,7 @@ function handleDragEnter(e) { // this / e.target is the current hover target.
 		e.preventDefault(); // Necessary. Allows us to drop.
 	}
 	addClass(this, 'over');
-	UIdata.dragDestEl = this;
-	console.log('drag enter');
-	console.log(this);
+	appData.dragDestEl = this;
 }
 
 function handleDragOver(e) { // this / e.target is the current hover target.
@@ -281,49 +321,59 @@ function handleDragOver(e) { // this / e.target is the current hover target.
 		e.preventDefault(); // Necessary. Allows us to drop.
 	}
 	e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
-	console.log('drag over');
-	console.log(this);
 	return false;
 }
 
 function handleDragLeave(e) { // this / e.target is previous target element.
 	removeClass(this, 'over');
-	console.log('drag leave');
-	console.log(this);
 }
 
 function handleDrop(e) { // this / e.target is current target element.
 	if (e.stopPropagation) {
 		e.stopPropagation(); // stops the browser from redirecting.
 	}
-	if (UIdata.dragSrcEl != this) {
-		this.appendChild(UIdata.dragSrcEl);
+	if (appData.dragSrcEl != this) {
+		this.appendChild(appData.dragSrcEl);
+		var id = appData.dragSrcEl.id;
+		var columnId = this.id;
+		var permission;
+		if(columnId.indexOf('allow') != -1) {
+			permission = 1;
+		} else if(columnId.indexOf('prompt') != -1) {
+			permission = 0;
+		} else if(columnId.indexOf('deny') != -1) {
+			permission = -1;
+		}
+		placesUpdatePermission(id, permission);
 	}
-	console.log('drag drop');
-	console.log(this);
+	//console.log('drag drop');
+	//console.log(this);
 	return false;
 }
 
 function handleDragEnd(e) { // this/e.target is the source node.
 	this.style.opacity = '1';
-	removeClass(UIdata.dragDestEl, 'over');
-	console.log('drag end');
-	console.log(this);
+	removeClass(appData.dragDestEl, 'over');
+	//console.log('drag end');
+	//console.log(this);
 }
 
-var draggables = document.querySelectorAll('[draggable]');
-[].forEach.call(draggables, function(draggable) {
-	draggable.addEventListener('dragstart', handleDragStart, false);
-	draggable.addEventListener('dragend', handleDragEnd, false);
-});
-var cols = document.querySelectorAll('.column');
-[].forEach.call(cols, function(col) {
-	console.log(col);
-	col.addEventListener('dragenter', handleDragEnter, false)
-	col.addEventListener('dragover', handleDragOver, false);
-	col.addEventListener('dragleave', handleDragLeave, false);
-	col.addEventListener('drop', handleDrop, false);
-});
+function dragDropInitColumns() {
+	var cols = document.querySelectorAll('.column');
+	[].forEach.call(cols, function(col) {
+		col.addEventListener('dragenter', handleDragEnter, false)
+		col.addEventListener('dragover', handleDragOver, false);
+		col.addEventListener('dragleave', handleDragLeave, false);
+		col.addEventListener('drop', handleDrop, false);
+	});
+}
+function dragDropInitDraggables() {
+	var draggables = document.querySelectorAll('[draggable]');
+	[].forEach.call(draggables, function(draggable) {
+		draggable.addEventListener('dragstart', handleDragStart, false);
+		draggable.addEventListener('dragend', handleDragEnd, false);
+	});
+}
 
 
 /* DATE MANIPULATION */
@@ -422,20 +472,30 @@ var enableTabs = function() {
 }();
 
 var enablePopups = function() {
+	//init
 	objectsForLater.popupOverlay = document.getElementById('popup_overlay');
 	objectsForLater.popupContainer = document.getElementById('popup_container');
 
+	//popups
 	objectsForLater.popupTest = document.getElementById('popup-test');
 	objectsForLater.popupAddToPolicy = document.getElementById('popup-addToPolicy');
 	objectsForLater.popupPolicyEntity = document.getElementById('popup-policyEntity');
 	objectsForLater.popupPolicyEntityEdit = document.getElementById('popup-policyEntity-edit');
+	objectsForLater.popupAddProfile = document.getElementById('popup-addProfile');
 
+	//buttons opening popups
 	document.getElementById('t-test').onclick = function() {showPopup(objectsForLater.popupTest)};
 	document.getElementById('t-add').onclick = function() {showPopup(objectsForLater.popupAddToPolicy)};
 
-	document.getElementById('popup-addToPolicy-category').onclick = function() {policyEntityNewdit('category');}
-	document.getElementById('popup-addToPolicy-object').onclick = function() {policyEntityNewdit('object');}
-	document.getElementById('popup-addToPolicy-service').onclick = function() {policyEntityNewdit('service');}
+	objectsForLater.popupAddProfileInput = document.getElementById('popup-addProfile-name');
+	document.getElementById('placesAddProfile').onclick = function() {objectsForLater.popupAddProfileInput.value = ''; showPopup(objectsForLater.popupAddProfile);};
+
+	//buttons inside popups
+	document.getElementById('popup-addProfile-save').onclick = function() {placesAddProfile()};
+
+	document.getElementById('popup-addToPolicy-profile').onclick = function() {policyEntityNewdit('profile')};
+	document.getElementById('popup-addToPolicy-object').onclick = function() {policyEntityNewdit('object')};
+	document.getElementById('popup-addToPolicy-service').onclick = function() {policyEntityNewdit('service')};
 
 	/* policy entity edit tabs - quite verbose... but it seems like I don't need a function for anything similar to this */
 	var policyEntityEditSummaryTab = document.getElementById('popup-policyEntity-edit-summary');
@@ -473,7 +533,7 @@ var toolbarShowHide = function() {
 	};
 }();
 
-function policyEntityNewdit(newTypeOrId, previousPopup) {
+function policyEntityNewdit(newTypeOrId) {
 	var previousPopup;
 
 	if(typeof newTypeOrId != 'object') { //new
@@ -492,8 +552,8 @@ var drawQuickSettings = function() {
 	var quickSettingsSwitchesContainer = document.getElementById('quickSettings-switches-content'),
 		quickSettingsStatusContainer = document.getElementById('quickSettings-status-content'),
 		html = '',
-		quickSettings = UIdata.quickSettings,
-		quickStatus = UIdata.quickStatus,
+		quickSettings = appData.quickSettings || [],
+		quickStatus = appData.quickStatus || [],
 		i = 0,
 		j = quickSettings.length,
 		checked = '',
@@ -543,7 +603,7 @@ var drawQuickSettings = function() {
 var drawStoreList = function() {
 	var storeListContainer = document.getElementById('storeListContainer'),
 		html = '',
-		stores = UIdata.stores,
+		stores = appData.stores || [],
 		i = 0,
 		j = stores.length,
 		checked;
@@ -569,7 +629,7 @@ var drawStoreList = function() {
 var drawPeopleList = function() {
 	var peopleListContainer = document.getElementById('people-list'),
 		html = '',
-		people = UIdata.people,
+		people = appData.people || [],
 		i = 0,
 		j = people.length,
 		pic,
@@ -605,3 +665,165 @@ var listOptions = {
 };
 
 var peopleList = new List('peoplePolicies', listOptions);
+// end of list.js
+
+
+var drawPlaces = function() {
+	var profileListContainer = document.getElementById('places-profiles'),
+		docFrag = document.createDocumentFragment(),
+		tmpDiv,
+		tmpSpan,
+		profiles = appData.profiles || [],
+		i = 0,
+		j = profiles.length;
+
+	appData.places = {};
+	objectsForLater.places = {};
+	objectsForLater.places.profilesContainer = profileListContainer;
+	objectsForLater.places.allow = document.getElementById('places-allow');
+	objectsForLater.places.prompt = document.getElementById('places-prompt');
+	objectsForLater.places.deny = document.getElementById('places-deny');
+
+	for(i; i<j; i++) {
+		tmpDiv = document.createElement("div");
+		tmpDiv.textContent = profiles[i].name;
+		if(i == 0) {
+			tmpDiv.className = 'selected'; //highlight the first profile
+			objectsForLater.places.currentProfileDiv = tmpDiv;
+		}
+		tmpDiv.onclick = (function(thisObj, id) {
+			return function() {
+				placesOpenProfile(thisObj, id);
+			};
+		})(tmpDiv, profiles[i].id);
+		tmpSpan = document.createElement("span");
+		tmpSpan.textContent = '-';
+		tmpSpan.onclick = function(e) {e.stopPropagation(); console.log("open popup");}; //TODO
+		tmpDiv.appendChild(tmpSpan);
+		docFrag.appendChild(tmpDiv);
+	}
+
+	appData.places.currentProfileId = profiles[0].id; //first profile active by default, but IT CAN BE EMPTY
+	profileListContainer.appendChild(docFrag);
+	dragDropInitColumns();
+
+	if(profiles.length > 0) {
+		drawPlacesPermissions(appData.places.currentProfileId);
+	}
+	//TODO
+	//dodać akcje do guzików dodawania
+}();
+
+function drawPlacesPermissions(profileId) {
+	if(!profileId) return false;
+
+	objectsForLater.places.allow.innerHTML = '';
+	objectsForLater.places.prompt.innerHTML = '';
+	objectsForLater.places.deny.innerHTML = '';
+
+	var docFragAllow = document.createDocumentFragment(),
+		docFragPrompt = document.createDocumentFragment(),
+		docFragDeny = document.createDocumentFragment(),
+		tmpDiv,
+		tmpSpan,
+		permissions = appData.permissions || [],
+		i = 0,
+		j = permissions.length;
+
+	for(i; i<j; i++) {
+		if(permissions[i].profileId == profileId) {
+			tmpDiv = document.createElement("div");
+			tmpDiv.setAttribute('draggable', 'true');
+			tmpDiv.id = permissions[i].id;
+			tmpDiv.innerHTML = '<b>'+permissions[i].name+'</b>@'+permissions[i].app;
+			tmpSpan = document.createElement("span");
+			tmpSpan.textContent = '-';
+			tmpSpan.onclick = function() {console.log("open popup")}; //TODO
+			tmpDiv.appendChild(tmpSpan);
+
+			if(permissions[i].perm == 1) {
+				docFragAllow.appendChild(tmpDiv);
+			} else if(permissions[i].perm == 0) {
+				docFragPrompt.appendChild(tmpDiv);
+			} else if(permissions[i].perm == -1) {
+				docFragDeny.appendChild(tmpDiv);
+			}
+		}
+	}
+	objectsForLater.places.allow.appendChild(docFragAllow);
+	objectsForLater.places.prompt.appendChild(docFragPrompt);
+	objectsForLater.places.deny.appendChild(docFragDeny);
+
+	dragDropInitDraggables();
+}
+
+function placesOpenProfile(thisObj, id) {
+	//de-highlight old one
+	if(objectsForLater.places.currentProfileDiv) {
+		removeClass(objectsForLater.places.currentProfileDiv, 'selected');
+	}
+	//set active + higlight + draw
+	appData.places.currentProfileId = id;
+	addClass(thisObj, 'selected');
+	objectsForLater.places.currentProfileDiv = thisObj;
+	drawPlacesPermissions(id);
+}
+
+function placesAddProfile() {
+	var profile = {};
+	profile.id = new Date().valueOf();
+	profile.name = objectsForLater.popupAddProfileInput.value;
+
+	if(profile.name == '') return;
+
+	appData.profiles.push(profile);
+
+	var profileListContainer = document.getElementById('places-profiles'),
+		docFrag = document.createDocumentFragment();
+
+	var tmpDiv = document.createElement("div");
+	tmpDiv.textContent = profile.name;
+	tmpDiv.onclick = function() {placesOpenProfile(tmpDiv, profile.id)};
+	var tmpSpan = document.createElement("span");
+	tmpSpan.textContent = '-';
+	tmpSpan.onclick = function(e) {e.stopPropagation(); console.log("open popup");}; //TODO
+	tmpDiv.appendChild(tmpSpan);
+	docFrag.appendChild(tmpDiv);
+
+	if(!appData.places.currentProfileId) {
+		appData.places.currentProfileId = profile.id;
+		tmpDiv.className = 'selected';
+		objectsForLater.places.currentProfileDiv = thisObj;
+	}
+
+	profileListContainer.appendChild(docFrag);
+}
+
+function placesAddPermission() {
+	//a
+}
+
+function placesUpdatePermission(id, permission, name, app, service) {
+	var permissions = appData.permissions,
+		i = 0,
+		j = permissions.length;
+
+	for(i; i<j; i++) {
+		if(permissions[i].id == id) {
+			if(!isNaN(permission)) permissions[i].perm = permission;
+			if(name) permissions[i].name = name;
+			if(app) permissions[i].app = app; //TODO check those ifs later
+			if(service) permissions[i].service = service;
+		}
+	}
+}
+
+function placesRemoveProfile(id) {
+	//usun profil
+	//usun permissions
+	//if(appData.places.currentProfileId == id) wybierz pierwszy w kolejce profil i podswietl
+}
+
+function placesRemovePermission() {
+	//a
+}

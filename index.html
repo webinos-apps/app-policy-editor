@@ -65,28 +65,28 @@
 			</select>
 
 			<div class="places-titles">
-				<h1 class="places-categories-title">Profiles<span>+</span></h1>
+				<h1 class="places-profiles-title">Profiles<span id="placesAddProfile">+</span></h1>
 				<h1 class="places-allow-title">Allow<span>+</span></h1>
 				<h1 class="places-prompt-title">Prompt<span>+</span></h1>
 				<h1 class="places-deny-title">Deny<span>+</span></h1>
 			</div>
 
-			<div id="places-categories">
-				<div>Home<span>-</span></div>
+			<div id="places-profiles">
+				<!--<div>Home<span>-</span></div>
 				<div>Office<span>-</span></div>
 				<div class="selected">Trip to dad's<span>-</span></div>
-				<div>Misc<span>-</span></div>
+				<div>Misc<span>-</span></div>-->
 			</div>
 			<div id="places-allow" class="column">
-				<div draggable="true"><b>Navigation</b>@Kids in Focus<span>-</span></div>
+				<!--<div draggable="true"><b>Navigation</b>@Kids in Focus<span>-</span></div>
 				<div draggable="true"><b>Pets</b>@Kids in Focus<span>-</span></div>
-				<div draggable="true"><b>Sharing</b>@Webinos Travel<span>-</span></div>
+				<div draggable="true"><b>Sharing</b>@Webinos Travel<span>-</span></div>-->
 			</div>
 			<div id="places-prompt" class="column">
-				<div draggable="true"><b>Obey</b>@Consume<span>-</span></div>
+				<!--<div draggable="true"><b>Obey</b>@Consume<span>-</span></div>-->
 			</div>
 			<div id="places-deny" class="column">
-				<div draggable="true"><b>Navigation</b>@Spy on your loved ones<span>-</span></div>
+				<!--<div draggable="true"><b>Navigation</b>@Spy on your loved ones<span>-</span></div>-->
 			</div>
 		</div>
 
@@ -126,9 +126,20 @@
 			<div class="popup" id="popup-addToPolicy">
 				<div class="popup-close xclose">x</div>
 				<h1>Add to policy</h1>
-				<div class="button" id="popup-addToPolicy-category">New Category</div>
+				<div class="button" id="popup-addToPolicy-profile">New Profile</div>
 				<div class="button" id="popup-addToPolicy-object">New Object</div>
 				<div class="button" id="popup-addToPolicy-service">New Service</div>
+			</div>
+
+			<div class="popup" id="popup-addProfile">
+				<div class="popup-close xclose">x</div>
+				<h1>Add Profile</h1>
+				<div class="popup-policyEntity-edit-row">
+					<label for="addProfile-name">Profile Name</label>
+					<input type="text" id="popup-addProfile-name">
+				</div>
+				<div class="button popup-close ok" id="popup-addProfile-save">Add</div>
+				<div class="button popup-close">Cancel</div>
 			</div>
 
 			<div class="popup" id="popup-policyEntity">
