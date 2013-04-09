@@ -17,7 +17,7 @@
 		<div id="linkTo-quickSettings" class="selected">Quick</div>
 		<div id="linkTo-appsPolicies">Apps</div>
 		<div id="linkTo-peoplePolicies">People</div>
-		<div id="linkTo-placesPolicies">Places</div>
+		<div id="linkTo-placesPolicies">Profiles</div>
 		<div id="linkTo-storesSettings">Stores</div>
 	</div>
 
@@ -66,9 +66,9 @@
 
 			<div class="places-titles">
 				<h1 class="places-profiles-title">Profiles<span id="placesAddProfile">+</span></h1>
-				<h1 class="places-allow-title">Allow<span>+</span></h1>
-				<h1 class="places-prompt-title">Prompt<span>+</span></h1>
-				<h1 class="places-deny-title">Deny<span>+</span></h1>
+				<h1 class="places-allow-title">Allow<span id="placesAddAllow">+</span></h1>
+				<h1 class="places-prompt-title">Prompt<span id="placesAddPrompt">+</span></h1>
+				<h1 class="places-deny-title">Deny<span id="placesAddDeny">+</span></h1>
 			</div>
 
 			<div id="places-profiles">
@@ -108,9 +108,9 @@
 		<div id="t-save">Save</div>
 		<div id="t-test">Test</div>
 		<div id="t-sync">Sync</div>
-		<hr>
+		<!--<hr>
 		<div id="t-add">Add</div>
-		<div id="t-del">Delete</div>
+		<div id="t-del">Delete</div>-->
 	</div>
 
 	<div id="popup_overlay">
@@ -123,18 +123,19 @@
 				<div class="button popup-close">Cancel</div>
 			</div>
 
-			<div class="popup" id="popup-addToPolicy">
+			<!--<div class="popup" id="popup-addToPolicy">
 				<div class="popup-close xclose">x</div>
 				<h1>Add to policy</h1>
 				<div class="button" id="popup-addToPolicy-profile">New Profile</div>
 				<div class="button" id="popup-addToPolicy-object">New Object</div>
 				<div class="button" id="popup-addToPolicy-service">New Service</div>
-			</div>
+			</div>-->
 
 			<div class="popup" id="popup-addProfile">
 				<div class="popup-close xclose">x</div>
-				<h1>Add Profile</h1>
-				<div class="popup-policyEntity-edit-row">
+				<h1>Add/Edit Profile</h1>
+				<input type="hidden" id="popup-addProfile-id">
+				<div class="popup-input-row">
 					<label for="addProfile-name">Profile Name</label>
 					<input type="text" id="popup-addProfile-name">
 				</div>
@@ -142,53 +143,55 @@
 				<div class="button popup-close">Cancel</div>
 			</div>
 
-			<div class="popup" id="popup-policyEntity">
+			<!--<div class="popup" id="popup-policyEntity">
 				<div class="popup-close xclose">x</div>
 				<h1>Name</h1>
 				<div class="button popup-close">Object</div>
 				<div class="button popup-close">Service</div>
-			</div>
+			</div>-->
 
-			<div class="popup" id="popup-policyEntity-edit">
-				<h1 id="policyEntity-edit-type-header">Edit Device Service</h1>
+			<div class="popup" id="popup-addPermission">
+				<h1 id="popup-addPermission-header">Add/Edit Permission</h1>
 				<div class="popup-tabs">
-					<div id="popup-policyEntity-edit-summary" class="selected">Summary</div>
-					<div id="popup-policyEntity-edit-details">Details</div>
+					<div id="popup-addPermission-summary-tab" class="selected">Summary</div>
+					<div id="popup-addPermission-details-tab">Details</div>
 				</div>
 
-				<div id="policyEntity-edit-summary" class="popup-page">
-					<div class="popup-policyEntity-edit-row">
-						<label for="policyEntity-edit-name">Name</label>
-						<input type="text" id="policyEntity-edit-name">
+				<div id="popup-addPermission-summary-content" class="popup-page">
+					<input type="hidden" id="popup-addPermission-id">
+					<div class="popup-input-row">
+						<label for="popup-addPermission-name">Name</label>
+						<input type="text" id="popup-addPermission-name">
 					</div>
-					<div class="popup-policyEntity-edit-row">
-						<label for="policyEntity-edit-app">Application</label>
-						<select id="policyEntity-edit-app">
-							<option value="kif">Kids in Focus</option>
-							<option value="poo">Prodigy of Ouroboros</option>
+					<div class="popup-input-row">
+						<label for="popup-addPermission-app">Application</label>
+						<select id="popup-addPermission-app">
+							<!--<option value="kif">Kids in Focus</option>
+							<option value="poo">Prodigy of Ouroboros</option>-->
 						</select>
 					</div>
-					<div class="popup-policyEntity-edit-row">
-						<label for="policyEntity-edit-type" id="policyEntity-edit-type-label">Device Service</label>
-						<select id="policyEntity-edit-type">
+					<div class="popup-input-row">
+						<label for="popup-addPermission-type">Device Service</label>
+						<select id="popup-addPermission-type">
 							<option value="gps">GPS</option>
 							<option value="sms">SMS</option>
 						</select>
 					</div>
-					<div class="popup-policyEntity-edit-row">
-						<label for="policyEntity-edit-action">Action</label>
-						<select id="policyEntity-edit-action">
+					<div class="popup-input-row">
+						<label for="popup-addPermission-action">Action</label>
+						<select id="popup-addPermission-action">
 							<option value="allow">Allow</option>
+							<option value="prompt">Prompt</option>
 							<option value="deny">Deny</option>
 						</select>
 					</div>
 				</div>
 
-				<div id="policyEntity-edit-details" class="popup-page">
-					<textarea id="policyEntity-edit-detailsTextarea">Details</textarea>
+				<div id="popup-addPermission-details-content" class="popup-page">
+					<textarea id="popup-addPermission-detailsTextarea">Details</textarea>
 				</div>
 
-				<div class="button popup-close ok">Save</div>
+				<div class="button popup-close ok" id="popup-addPermission-save">Save</div>
 				<div class="button popup-close">Cancel</div>
 			</div>
 		</div>

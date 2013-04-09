@@ -586,8 +586,7 @@ color: #bbb;
 	background: #0084FF;
 }
 
-#popup-addProfile,
-#popup-addToPolicy {
+#popup-addProfile/*, #popup-addToPolicy*/ {
 	width: 300px;
 }
 #popup-addToPolicy .button {
@@ -597,7 +596,7 @@ color: #bbb;
 	margin-top: 1em;
 }
 
-#popup-policyEntity-edit {
+#popup-addPermission {
 	width: 350px;
 }
 
@@ -615,23 +614,23 @@ color: #bbb;
 	cursor: default;
 }
 
-#policyEntity-edit-details {
+#popup-addPermission-details-content {
 	display: none;
 }
 
-.popup-policyEntity-edit-row label, .popup-policyEntity-edit-row input, .popup-policyEntity-edit-row select {
+.popup-input-row label, .popup-input-row input, .popup-input-row select {
 	display: inline-block;
 }
-.popup-policyEntity-edit-row label {
+.popup-input-row label {
 	width: 38%;
 }
-.popup-policyEntity-edit-row input, .popup-policyEntity-edit-row select {
+.popup-input-row input, .popup-input-row select {
 	width: 59%;
 	box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 }
-#policyEntity-edit-detailsTextarea {
+#popup-addPermission-detailsTextarea {
 	width: 100%;
 	height: 7em;
 }
@@ -682,23 +681,30 @@ color: #bbb;
 .places-profiles-title span, .places-allow-title span, .places-deny-title span, .places-prompt-title span {
 	display: none;
 	position: absolute;
+	z-index: 10;
 	top: 5px;
 	right: 0;
 	font-size: 30px;
-	vertical-align: middle;
 	width: 1em;
 	text-align: center;
 	cursor: pointer;
 }
-#places-profiles span {
-	top: 3px;
-}
+
 #places-profiles span, #places-allow span, #places-deny span, #places-prompt span {
-	font-size: 20px;
+	top: 0;
+	font-size: 10px;
+	width: auto;
+	border: 1px solid #000;
+	/*background: rgba(0,0,0,0.8);*/
+	background: #fff;
 }
 #places-profiles div:hover span, #places-allow div:hover span, #places-deny div:hover span, #places-prompt div:hover span,
 .places-profiles-title:hover span, .places-allow-title:hover span, .places-deny-title:hover span, .places-prompt-title:hover span {
-	display: inline-block;
+	display: block;
+}
+#places-profiles img, #places-allow img, #places-deny img, #places-prompt img {
+	width: 15px;
+	margin: 5px;
 }
 .places-allow-title, .places-deny-title, .places-prompt-title {
 	padding: 0.3em 0.5em 0.3em;
@@ -728,7 +734,7 @@ color: #bbb;
 #places-prompt {
 	background: rgba(255, 255, 0, 0.1);
 }
-#places-allow div, #places-deny div, #places-prompt div {
+#places-allow > div, #places-deny > div, #places-prompt > div {
 	padding: 0.5em;
 	border-left: 3px solid rgba(0,0,0,0.1);
 	border-bottom: 1px dashed rgba(0,0,0,0.1);
@@ -741,13 +747,13 @@ color: #bbb;
 	font-weight: bold;
 	font-size: 150%;
 }
-#places-allow div {
+#places-allow > div {
 	border-color: rgba(0, 255, 0, 0.3);
 }
-#places-deny div {
+#places-deny > div {
 	border-color: rgba(255, 0, 0, 0.3);
 }
-#places-prompt div {
+#places-prompt > div {
 	border-color: rgba(255, 255, 0, 0.3);
 }
 .column.over {

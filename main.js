@@ -70,46 +70,61 @@ mocked.profiles = [{
 	name: "Misc"
 }];
 
+mocked.apps = {
+	'kidsinfocus': {
+		name: 'Kids In Focus'
+	},
+	'webinostravel': {
+		name: 'Webinos Travel'
+	},
+	'littlespy': {
+		name: 'Spy on your loved ones'
+	},
+	'ouroboros': {
+		name: 'Prodigy of Ouroboros'
+	}
+}
+
 mocked.permissions = [{
 	id: 0,
 	profileId: 3,
 	name: "Navigation",
-	app: "Kids in Focus",
+	app: "kidsinfocus",
 	service: "gps",
 	perm: 1 //1 allow, 0 prompt, -1 deny
 }, {
 	id: 1,
 	profileId: 3,
 	name: "Wifi",
-	app: "Kids in Focus",
+	app: "kidsinfocus",
 	service: "wifi",
 	perm: 1
 }, {
 	id: 2,
 	profileId: 3,
 	name: "Photos",
-	app: "Webinos Travel",
+	app: "webinostravel",
 	service: "photo",
 	perm: 1
 }, {
 	id: 3,
 	profileId: 3,
 	name: "Camera",
-	app: "Kids in Focus",
+	app: "kidsinfocus",
 	service: "video",
 	perm: 0
 }, {
 	id: 4,
 	profileId: 3,
 	name: "GPS",
-	app: "Spy on your loved ones",
+	app: "littlespy",
 	service: "gps",
 	perm: -1
 }, {
 	id: 5,
 	profileId: 1,
 	name: "Camera",
-	app: "Kids in Focus",
+	app: "kidsinfocus",
 	service: "video",
 	perm: 1
 }];
@@ -194,6 +209,17 @@ function selectItem(elements, active) {
 		}
 		removeClass(elements[i], 'selected');
 	}
+}
+
+function getObjFromArrayById(id, array) {
+	var i = 0,
+		j = array.length;
+	for(i; i<j; i++) {
+		if(array[i].id == id) {
+			return array[i];
+		}
+	}
+	return false;
 }
 
 function showPopup(popup) {
@@ -367,13 +393,13 @@ function dragDropInitColumns() {
 		col.addEventListener('drop', handleDrop, false);
 	});
 }
-function dragDropInitDraggables() {
+/*function dragDropInitDraggables() {
 	var draggables = document.querySelectorAll('[draggable]');
 	[].forEach.call(draggables, function(draggable) {
 		draggable.addEventListener('dragstart', handleDragStart, false);
 		draggable.addEventListener('dragend', handleDragEnd, false);
 	});
-}
+}*/
 
 
 /* DATE MANIPULATION */
@@ -478,43 +504,52 @@ var enablePopups = function() {
 
 	//popups
 	objectsForLater.popupTest = document.getElementById('popup-test');
-	objectsForLater.popupAddToPolicy = document.getElementById('popup-addToPolicy');
-	objectsForLater.popupPolicyEntity = document.getElementById('popup-policyEntity');
-	objectsForLater.popupPolicyEntityEdit = document.getElementById('popup-policyEntity-edit');
+		//objectsForLater.popupAddToPolicy = document.getElementById('popup-addToPolicy');
+		//objectsForLater.popupPolicyEntity = document.getElementById('popup-policyEntity');
+	objectsForLater.popupAddPermission = document.getElementById('popup-addPermission');
 	objectsForLater.popupAddProfile = document.getElementById('popup-addProfile');
 
 	//buttons opening popups
 	document.getElementById('t-test').onclick = function() {showPopup(objectsForLater.popupTest)};
-	document.getElementById('t-add').onclick = function() {showPopup(objectsForLater.popupAddToPolicy)};
+		//document.getElementById('t-add').onclick = function() {showPopup(objectsForLater.popupAddToPolicy)};
 
-	objectsForLater.popupAddProfileInput = document.getElementById('popup-addProfile-name');
-	document.getElementById('placesAddProfile').onclick = function() {objectsForLater.popupAddProfileInput.value = ''; showPopup(objectsForLater.popupAddProfile);};
+	objectsForLater.popupAddProfileId = document.getElementById('popup-addProfile-id');
+	objectsForLater.popupAddProfileName = document.getElementById('popup-addProfile-name');
+	document.getElementById('placesAddProfile').onclick = function() {profileEditPopup()};
+
+	objectsForLater.popupAddPermissionId = document.getElementById('popup-addPermission-id');
+	objectsForLater.popupAddPermissionName = document.getElementById('popup-addPermission-name');
+	objectsForLater.popupAddPermissionApp = document.getElementById('popup-addPermission-app');
+	objectsForLater.popupAddPermissionType = document.getElementById('popup-addPermission-type');
+	objectsForLater.popupAddPermissionAction = document.getElementById('popup-addPermission-action');
+	document.getElementById('placesAddAllow').onclick = function() {permissionEditPopup('allow')};
+	document.getElementById('placesAddPrompt').onclick = function() {permissionEditPopup('prompt')};
+	document.getElementById('placesAddDeny').onclick = function() {permissionEditPopup('deny')};
 
 	//buttons inside popups
-	document.getElementById('popup-addProfile-save').onclick = function() {placesAddProfile()};
+	document.getElementById('popup-addProfile-save').onclick = function() {placesAddEditProfile()};
+	document.getElementById('popup-addPermission-save').onclick = function() {placesAddEditPermission()};
 
-	document.getElementById('popup-addToPolicy-profile').onclick = function() {policyEntityNewdit('profile')};
-	document.getElementById('popup-addToPolicy-object').onclick = function() {policyEntityNewdit('object')};
-	document.getElementById('popup-addToPolicy-service').onclick = function() {policyEntityNewdit('service')};
+		//document.getElementById('popup-addToPolicy-profile').onclick = function() {policyEntityNewdit('profile')};
+		//document.getElementById('popup-addToPolicy-object').onclick = function() {policyEntityNewdit('object')};
+		//document.getElementById('popup-addToPolicy-service').onclick = function() {policyEntityNewdit('service')};
 
 	/* policy entity edit tabs - quite verbose... but it seems like I don't need a function for anything similar to this */
-	var policyEntityEditSummaryTab = document.getElementById('popup-policyEntity-edit-summary');
-	var policyEntityEditDetailsTab = document.getElementById('popup-policyEntity-edit-details');
+	var popupAddPermissionSummaryTab = document.getElementById('popup-addPermission-summary-tab');
+	var popupAddPermissionDetailsTab = document.getElementById('popup-addPermission-details-tab');
+	var popupAddPermissionTabs = [popupAddPermissionSummaryTab, popupAddPermissionDetailsTab];
+	objectsForLater.popupAddPermissionSummaryPage = document.getElementById('popup-addPermission-summary-content');
+	objectsForLater.popupAddPermissionDetailsPage = document.getElementById('popup-addPermission-details-content');
 
-	var policyEntityEditTabs = [policyEntityEditSummaryTab, policyEntityEditDetailsTab];
-
-	objectsForLater.policyEntityEditSummaryPage = document.getElementById('policyEntity-edit-summary');
-	objectsForLater.policyEntityEditDetailsPage = document.getElementById('policyEntity-edit-details');
-
-	policyEntityEditSummaryTab.onclick = function() {
-		selectItem(policyEntityEditTabs, 0);
-		objectsForLater.policyEntityEditSummaryPage.style.display = 'block';
-		objectsForLater.policyEntityEditDetailsPage.style.display = 'none';
+	popupAddPermissionSummaryTab.onclick = function() {
+		selectItem(popupAddPermissionTabs, 0);
+		objectsForLater.popupAddPermissionSummaryPage.style.display = 'block';
+		objectsForLater.popupAddPermissionDetailsPage.style.display = 'none';
 	}
-	policyEntityEditDetailsTab.onclick = function() {
-		selectItem(policyEntityEditTabs, 1);
-		objectsForLater.policyEntityEditSummaryPage.style.display = 'none';
-		objectsForLater.policyEntityEditDetailsPage.style.display = 'block';
+	popupAddPermissionDetailsTab.onclick = function() {
+		selectItem(popupAddPermissionTabs, 1);
+		objectsForLater.popupAddPermissionSummaryPage.style.display = 'none';
+		objectsForLater.popupAddPermissionDetailsPage.style.display = 'block';
 	}
 	/* policy entity edit tabs END */
 
@@ -532,21 +567,6 @@ var toolbarShowHide = function() {
 		}
 	};
 }();
-
-function policyEntityNewdit(newTypeOrId) {
-	var previousPopup;
-
-	if(typeof newTypeOrId != 'object') { //new
-		previousPopup = objectsForLater.popupAddToPolicy;
-		//generate new id
-	} else { //edit
-		previousPopup = objectsForLater.popupPolicyEntity;
-		//fill in
-	}
-
-	previousPopup.style.display = "none";
-	showPopup(objectsForLater.popupPolicyEntityEdit);
-}
 
 var drawQuickSettings = function() {
 	var quickSettingsSwitchesContainer = document.getElementById('quickSettings-switches-content'),
@@ -669,50 +689,111 @@ var peopleList = new List('peoplePolicies', listOptions);
 
 
 var drawPlaces = function() {
-	var profileListContainer = document.getElementById('places-profiles'),
-		docFrag = document.createDocumentFragment(),
-		tmpDiv,
-		tmpSpan,
+	var docFrag = document.createDocumentFragment(),
 		profiles = appData.profiles || [],
 		i = 0,
 		j = profiles.length;
 
 	appData.places = {};
 	objectsForLater.places = {};
-	objectsForLater.places.profilesContainer = profileListContainer;
+	objectsForLater.places.profileListContainer = document.getElementById('places-profiles');
 	objectsForLater.places.allow = document.getElementById('places-allow');
 	objectsForLater.places.prompt = document.getElementById('places-prompt');
 	objectsForLater.places.deny = document.getElementById('places-deny');
+	objectsForLater.places.profiles = {};
+	objectsForLater.places.permissions = {};
 
 	for(i; i<j; i++) {
-		tmpDiv = document.createElement("div");
-		tmpDiv.textContent = profiles[i].name;
+		createProfileListEntry(profiles[i], docFrag);
 		if(i == 0) {
-			tmpDiv.className = 'selected'; //highlight the first profile
-			objectsForLater.places.currentProfileDiv = tmpDiv;
+			setActiveProfile(profiles[i].id); //initial highlight
 		}
-		tmpDiv.onclick = (function(thisObj, id) {
-			return function() {
-				placesOpenProfile(thisObj, id);
-			};
-		})(tmpDiv, profiles[i].id);
-		tmpSpan = document.createElement("span");
-		tmpSpan.textContent = '-';
-		tmpSpan.onclick = function(e) {e.stopPropagation(); console.log("open popup");}; //TODO
-		tmpDiv.appendChild(tmpSpan);
-		docFrag.appendChild(tmpDiv);
 	}
 
-	appData.places.currentProfileId = profiles[0].id; //first profile active by default, but IT CAN BE EMPTY
-	profileListContainer.appendChild(docFrag);
+	objectsForLater.places.profileListContainer.appendChild(docFrag);
 	dragDropInitColumns();
 
 	if(profiles.length > 0) {
 		drawPlacesPermissions(appData.places.currentProfileId);
 	}
-	//TODO
-	//dodać akcje do guzików dodawania
+
+	//popup form
+	var docFrag = document.createDocumentFragment(),
+		option;
+	for (var key in appData.apps) {
+		if (appData.apps.hasOwnProperty(key)) {
+			option = document.createElement("option");
+			option.setAttribute('value', key);
+			option.textContent = appData.apps[key].name;
+			docFrag.appendChild(option);
+		}
+	}
+	objectsForLater.popupAddPermissionApp.appendChild(docFrag);
 }();
+
+function createProfileListEntry(profile, parentElement) {
+	var entry = document.createElement("div");
+	entry.textContent = profile.name;
+	entry.onclick = function() {placesOpenProfile(profile.id)};
+	var controls = document.createElement("span");
+	var edit = document.createElement("img");
+	edit.src = "img/edit.png";
+	edit.setAttribute('alt', 'Edit');
+	edit.onclick = function(e) {e.stopPropagation(); profileEditPopup(profile.id);};
+	var del = document.createElement("img");
+	del.src = "img/delete.png";
+	del.setAttribute('alt', 'Delete');
+	del.onclick = function(e) {e.stopPropagation(); console.log("open popup del");}; //TODO
+	controls.appendChild(edit);
+	controls.appendChild(del);
+	entry.appendChild(controls);
+	parentElement.appendChild(entry);
+
+	objectsForLater.places.profiles[profile.id] = entry;
+
+	return entry;
+}
+function setActiveProfile(id) {
+	appData.places.currentProfileId = id;
+	var obj = objectsForLater.places.profiles[id];
+	obj.className = 'selected'; //addClass ?
+	objectsForLater.places.currentProfileDiv = obj;
+}
+
+function createPermissionEntry(permission, docFrag) {
+	var entry,
+		name,
+		controls,
+		edit,
+		del;
+	entry = document.createElement("div");
+	entry.setAttribute('draggable', 'true');
+	entry.id = permission.id;
+	name = document.createElement("div");
+	name.innerHTML = '<b>'+permission.name+'</b>@'+appData.apps[permission.app].name;
+	entry.appendChild(name);
+	controls = document.createElement("span");
+	edit = document.createElement("img");
+	edit.src = "img/edit.png";
+	edit.setAttribute('alt', 'Edit');
+	edit.onclick = function(e) {permissionEditPopup(permission.id);}; //TODO
+	del = document.createElement("img");
+	del.src = "img/delete.png";
+	del.setAttribute('alt', 'Delete');
+	del.onclick = function(e) {console.log("open popup del");}; //TODO
+	controls.appendChild(edit);
+	controls.appendChild(del);
+	entry.appendChild(controls);
+
+	docFrag.appendChild(entry);
+
+	entry.addEventListener('dragstart', handleDragStart, false);
+	entry.addEventListener('dragend', handleDragEnd, false);
+
+	objectsForLater.places.permissions[permission.id] = name;
+
+	return entry;
+}
 
 function drawPlacesPermissions(profileId) {
 	if(!profileId) return false;
@@ -724,97 +805,68 @@ function drawPlacesPermissions(profileId) {
 	var docFragAllow = document.createDocumentFragment(),
 		docFragPrompt = document.createDocumentFragment(),
 		docFragDeny = document.createDocumentFragment(),
-		tmpDiv,
-		tmpSpan,
 		permissions = appData.permissions || [],
 		i = 0,
 		j = permissions.length;
 
 	for(i; i<j; i++) {
 		if(permissions[i].profileId == profileId) {
-			tmpDiv = document.createElement("div");
-			tmpDiv.setAttribute('draggable', 'true');
-			tmpDiv.id = permissions[i].id;
-			tmpDiv.innerHTML = '<b>'+permissions[i].name+'</b>@'+permissions[i].app;
-			tmpSpan = document.createElement("span");
-			tmpSpan.textContent = '-';
-			tmpSpan.onclick = function() {console.log("open popup")}; //TODO
-			tmpDiv.appendChild(tmpSpan);
-
 			if(permissions[i].perm == 1) {
-				docFragAllow.appendChild(tmpDiv);
+				docFrag = docFragAllow;
 			} else if(permissions[i].perm == 0) {
-				docFragPrompt.appendChild(tmpDiv);
+				docFrag = docFragPrompt;
 			} else if(permissions[i].perm == -1) {
-				docFragDeny.appendChild(tmpDiv);
+				docFrag = docFragDeny;
 			}
+
+			createPermissionEntry(permissions[i], docFrag);
 		}
 	}
 	objectsForLater.places.allow.appendChild(docFragAllow);
 	objectsForLater.places.prompt.appendChild(docFragPrompt);
 	objectsForLater.places.deny.appendChild(docFragDeny);
 
-	dragDropInitDraggables();
+	//dragDropInitDraggables();
 }
 
-function placesOpenProfile(thisObj, id) {
+function placesOpenProfile(id) {
 	//de-highlight old one
 	if(objectsForLater.places.currentProfileDiv) {
 		removeClass(objectsForLater.places.currentProfileDiv, 'selected');
 	}
 	//set active + higlight + draw
-	appData.places.currentProfileId = id;
-	addClass(thisObj, 'selected');
-	objectsForLater.places.currentProfileDiv = thisObj;
+	setActiveProfile(id);
 	drawPlacesPermissions(id);
 }
 
-function placesAddProfile() {
-	var profile = {};
-	profile.id = new Date().valueOf();
-	profile.name = objectsForLater.popupAddProfileInput.value;
+function placesAddEditProfile() {
+	var newName = objectsForLater.popupAddProfileName.value;
+	if(newName == '') return;
 
-	if(profile.name == '') return;
+	var id = objectsForLater.popupAddProfileId.value,
+		profile;
+	if(!id) { //new
+		profile = {};
+		profile.id = new Date().valueOf();
+		profile.name = newName;
 
-	appData.profiles.push(profile);
+		appData.profiles.push(profile);
+		//draw
+		var docFrag = document.createDocumentFragment();
+		createProfileListEntry(profile, docFrag);
 
-	var profileListContainer = document.getElementById('places-profiles'),
-		docFrag = document.createDocumentFragment();
-
-	var tmpDiv = document.createElement("div");
-	tmpDiv.textContent = profile.name;
-	tmpDiv.onclick = function() {placesOpenProfile(tmpDiv, profile.id)};
-	var tmpSpan = document.createElement("span");
-	tmpSpan.textContent = '-';
-	tmpSpan.onclick = function(e) {e.stopPropagation(); console.log("open popup");}; //TODO
-	tmpDiv.appendChild(tmpSpan);
-	docFrag.appendChild(tmpDiv);
-
-	if(!appData.places.currentProfileId) {
-		appData.places.currentProfileId = profile.id;
-		tmpDiv.className = 'selected';
-		objectsForLater.places.currentProfileDiv = thisObj;
-	}
-
-	profileListContainer.appendChild(docFrag);
-}
-
-function placesAddPermission() {
-	//a
-}
-
-function placesUpdatePermission(id, permission, name, app, service) {
-	var permissions = appData.permissions,
-		i = 0,
-		j = permissions.length;
-
-	for(i; i<j; i++) {
-		if(permissions[i].id == id) {
-			if(!isNaN(permission)) permissions[i].perm = permission;
-			if(name) permissions[i].name = name;
-			if(app) permissions[i].app = app; //TODO check those ifs later
-			if(service) permissions[i].service = service;
+		if(!appData.places.currentProfileId) {
+			setActiveProfile(profile.id);
 		}
+
+		objectsForLater.places.profileListContainer.appendChild(docFrag);
+	} else { //edit
+		profile = getObjFromArrayById(id, appData.profiles);
+		if(!profile) return;
+
+		profile.name = newName;
+		//re-draw
+		objectsForLater.places.profiles[id].textContent = newName;
 	}
 }
 
@@ -824,6 +876,107 @@ function placesRemoveProfile(id) {
 	//if(appData.places.currentProfileId == id) wybierz pierwszy w kolejce profil i podswietl
 }
 
+function placesAddEditPermission() {
+	var newName = objectsForLater.popupAddPermissionName.value;
+	if(newName == '') return; //TODO or something default?
+
+	var app = objectsForLater.popupAddPermissionApp.value;
+	var type = objectsForLater.popupAddPermissionType.value;
+	var perm = objectsForLater.popupAddPermissionAction.value;
+	var destColumn;
+	if(perm == 'allow') {
+		perm = 1;
+		destColumn = objectsForLater.places.allow;
+	} else if(perm == 'prompt') {
+		perm = 0;
+		destColumn = objectsForLater.places.prompt;
+	} else if(perm == 'deny') {
+		perm = -1;
+		destColumn = objectsForLater.places.deny;
+	}
+
+	var id = objectsForLater.popupAddPermissionId.value,
+		permission;
+
+	if(!id) { //new
+		permission = {};
+		permission.id = new Date().valueOf();
+		permission.profileId = appData.places.currentProfileId,
+		permission.name = newName;
+		permission.app = app;
+		permission.service = type;
+		permission.perm = perm;
+
+		appData.permissions.push(permission);
+
+		//draw
+		var docFrag = document.createDocumentFragment();
+		createPermissionEntry(permission, docFrag);
+		destColumn.appendChild(docFrag);
+	} else { //edit
+		permission = getObjFromArrayById(id, appData.permissions);
+		if(!permission) return;
+
+		permission.name = newName;
+		permission.app = app;
+		permission.service = type;
+		permission.perm = perm;
+		//re-draw
+		objectsForLater.places.permissions[id].innerHTML = '<b>'+permission.name+'</b>@'+appData.apps[permission.app].name;
+	}
+}
+
+function placesUpdatePermission(id, permission) {
+	var permissionObj = getObjFromArrayById(id, appData.permissions);
+	if(!permissionObj) return;
+	if(!isNaN(permission)) permissionObj.perm = permission;
+}
+
 function placesRemovePermission() {
 	//a
+}
+
+function profileEditPopup(id) {
+	if(!id) { //new
+		objectsForLater.popupAddProfileId.value = '';
+		objectsForLater.popupAddProfileName.value = '';
+	} else {
+		var profile = getObjFromArrayById(id, appData.profiles);
+		objectsForLater.popupAddProfileId.value = profile.id;
+		objectsForLater.popupAddProfileName.value = profile.name;
+	}
+	showPopup(objectsForLater.popupAddProfile);
+}
+
+function permissionEditPopup(newPermissionOrId) {
+	if(isNaN(newPermissionOrId)) { //new
+		if(newPermissionOrId == "allow" || newPermissionOrId == 'prompt' || newPermissionOrId == 'deny') {
+			objectsForLater.popupAddPermissionAction.value = newPermissionOrId;
+		} else {
+			objectsForLater.popupAddPermissionAction.options[0].selected = "selected";
+		}
+		//reset other fields
+		objectsForLater.popupAddPermissionId.value = '';
+		objectsForLater.popupAddPermissionName.value = '';
+		objectsForLater.popupAddPermissionApp.options[0].selected = "selected";
+		objectsForLater.popupAddPermissionType.options[0].selected = "selected";
+	} else { //edit
+		var permission = getObjFromArrayById(newPermissionOrId, appData.permissions);
+
+		var permValue;
+		if(permission.perm == 1) {
+			permValue = 'allow';
+		} else if(permission.perm == 0) {
+			permValue = 'prompt';
+		} else if(permission.perm == -1) {
+			permValue = 'deny';
+		}
+
+		objectsForLater.popupAddPermissionId.value = permission.id;
+		objectsForLater.popupAddPermissionName.value = permission.name;
+		objectsForLater.popupAddPermissionApp.value = permission.app;
+		objectsForLater.popupAddPermissionType.value = permission.type;
+		objectsForLater.popupAddPermissionAction.value = permValue;
+	}
+	showPopup(objectsForLater.popupAddPermission);
 }
