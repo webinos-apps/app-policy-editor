@@ -887,11 +887,13 @@ function placesDeleteProfile() {
 	appData.profiles.splice(profile.pos,1);
 	var profileDiv = objectsForLater.places.profiles[id];
 	profileDiv.parentNode.removeChild(profileDiv);
+	delete objectsForLater.places.profiles[id]; //remove reference
+	objectsForLater.places.currentProfileDiv = undefined;
 
 	var removePermissionsHtml = false;
 	if(appData.places.currentProfileId == id) { //if current profile is being deleted select first one
 		if(appData.profiles.length > 0) {
-			setActiveProfile(appData.profiles[0].id);
+			placesOpenProfile(appData.profiles[0].id);
 		} else {
 			appData.places.currentProfileId = undefined;
 			removePermissionsHtml = true; //no other profile, so we must clear permissions from the view
@@ -904,11 +906,13 @@ function placesDeleteProfile() {
 
 	for(i; i<j; i++) {
 		if(permissions[i].profileId == id) {
-			appData.permissions.splice(i,1);
+			var permId = permissions[i].id;
 			if(removePermissionsHtml) {
-				var permissionDiv = objectsForLater.places.permission[id].parentNode; //one node higher
+				var permissionDiv = objectsForLater.places.permissions[permId].parentNode; //one node higher
 				permissionDiv.parentNode.removeChild(permissionDiv);
 			}
+			delete objectsForLater.places.permissions[permId]; //remove reference
+			appData.permissions.splice(i,1);
 			i--; //compensate for the missing element
 			j--;
 		}
@@ -978,6 +982,7 @@ function placesDeletePermission() {
 	appData.permissions.splice(permission.pos,1);
 	var permissionDiv = objectsForLater.places.permissions[id].parentNode; //one node higher
 	permissionDiv.parentNode.removeChild(permissionDiv);
+	delete objectsForLater.places.permissions[id]; //remove reference
 	appData.places.permissionToDelete = undefined;
 }
 
