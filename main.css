@@ -578,6 +578,9 @@ color: #bbb;
 .popup h1 {
 	margin-bottom: 1em;
 }
+.popup b {
+	font-weight: bold;
+}
 .popup .button {
 	margin-top: 2em;
 	text-shadow: 0 1px black;
@@ -586,7 +589,7 @@ color: #bbb;
 	background: #0084FF;
 }
 
-#popup-addProfile/*, #popup-addToPolicy*/ {
+#popup-addProfile, #popup-deleteProfile, #popup-deletePermission/*, #popup-addToPolicy*/ {
 	width: 300px;
 }
 #popup-addToPolicy .button {
@@ -694,17 +697,23 @@ color: #bbb;
 	top: 0;
 	font-size: 10px;
 	width: auto;
-	border: 1px solid #000;
+	border: 1px dotted #0084ff;
 	/*background: rgba(0,0,0,0.8);*/
 	background: #fff;
 }
-#places-profiles div:hover span, #places-allow div:hover span, #places-deny div:hover span, #places-prompt div:hover span,
-.places-profiles-title:hover span, .places-allow-title:hover span, .places-deny-title:hover span, .places-prompt-title:hover span {
+#places-profiles div:hover span, #places-allow div:hover span, #places-deny div:hover span, #places-prompt div:hover span {
 	display: block;
 }
+.places-profiles-title span, .places-allow-title span, .places-deny-title span, .places-prompt-title span {
+	display: block;
+	opacity: 0.2;
+}
+.places-profiles-title:hover span, .places-allow-title:hover span, .places-deny-title:hover span, .places-prompt-title:hover span {
+	opacity: 1;
+}
 #places-profiles img, #places-allow img, #places-deny img, #places-prompt img {
-	width: 15px;
-	margin: 5px;
+	width: 10px;
+	margin: 8px;
 }
 .places-allow-title, .places-deny-title, .places-prompt-title {
 	padding: 0.3em 0.5em 0.3em;

@@ -211,12 +211,18 @@ function selectItem(elements, active) {
 	}
 }
 
-function getObjFromArrayById(id, array) {
+function getObjFromArrayById(id, array, returnWithPosition) {
 	var i = 0,
 		j = array.length;
 	for(i; i<j; i++) {
 		if(array[i].id == id) {
-			return array[i];
+			var results;
+			if(returnWithPosition) {
+				result = {obj:array[i], pos:i};
+			} else {
+				results = array[i];
+			}
+			return result;
 		}
 	}
 	return false;
@@ -508,6 +514,8 @@ var enablePopups = function() {
 		//objectsForLater.popupPolicyEntity = document.getElementById('popup-policyEntity');
 	objectsForLater.popupAddPermission = document.getElementById('popup-addPermission');
 	objectsForLater.popupAddProfile = document.getElementById('popup-addProfile');
+	objectsForLater.popupDeletePermission = document.getElementById('popup-deletePermission');
+	objectsForLater.popupDeleteProfile = document.getElementById('popup-deleteProfile');
 
 	//buttons opening popups
 	document.getElementById('t-test').onclick = function() {showPopup(objectsForLater.popupTest)};
@@ -525,6 +533,8 @@ var enablePopups = function() {
 	document.getElementById('placesAddAllow').onclick = function() {permissionEditPopup('allow')};
 	document.getElementById('placesAddPrompt').onclick = function() {permissionEditPopup('prompt')};
 	document.getElementById('placesAddDeny').onclick = function() {permissionEditPopup('deny')};
+	document.getElementById('popup-deletePermission-confirm').onclick = function() {placesDeletePermission()};
+	document.getElementById('popup-deleteProfile-confirm').onclick = function() {placesDeleteProfile()};
 
 	//buttons inside popups
 	document.getElementById('popup-addProfile-save').onclick = function() {placesAddEditProfile()};
@@ -743,7 +753,7 @@ function createProfileListEntry(profile, parentElement) {
 	var del = document.createElement("img");
 	del.src = "img/delete.png";
 	del.setAttribute('alt', 'Delete');
-	del.onclick = function(e) {e.stopPropagation(); console.log("open popup del");}; //TODO
+	del.onclick = function(e) {e.stopPropagation(); profileDeletePopup(profile.id);};
 	controls.appendChild(edit);
 	controls.appendChild(del);
 	entry.appendChild(controls);
@@ -776,11 +786,11 @@ function createPermissionEntry(permission, docFrag) {
 	edit = document.createElement("img");
 	edit.src = "img/edit.png";
 	edit.setAttribute('alt', 'Edit');
-	edit.onclick = function(e) {permissionEditPopup(permission.id);}; //TODO
+	edit.onclick = function(e) {permissionEditPopup(permission.id);};
 	del = document.createElement("img");
 	del.src = "img/delete.png";
 	del.setAttribute('alt', 'Delete');
-	del.onclick = function(e) {console.log("open popup del");}; //TODO
+	del.onclick = function(e) {permissionDeletePopup(permission.id);};
 	controls.appendChild(edit);
 	controls.appendChild(del);
 	entry.appendChild(controls);
@@ -870,10 +880,40 @@ function placesAddEditProfile() {
 	}
 }
 
-function placesRemoveProfile(id) {
-	//usun profil
-	//usun permissions
-	//if(appData.places.currentProfileId == id) wybierz pierwszy w kolejce profil i podswietl
+function placesDeleteProfile() {
+	var id = appData.places.profileToDelete;
+	//delete profile
+	var profile = getObjFromArrayById(id, appData.profiles, true);
+	appData.profiles.splice(profile.pos,1);
+	var profileDiv = objectsForLater.places.profiles[id];
+	profileDiv.parentNode.removeChild(profileDiv);
+
+	var removePermissionsHtml = false;
+	if(appData.places.currentProfileId == id) { //if current profile is being deleted select first one
+		if(appData.profiles.length > 0) {
+			setActiveProfile(appData.profiles[0].id);
+		} else {
+			appData.places.currentProfileId = undefined;
+			removePermissionsHtml = true; //no other profile, so we must clear permissions from the view
+		}
+	}
+	//remove permissions AFTER profile change, to avoid pointless redraws
+	var permissions = appData.permissions,
+		i = 0,
+		j = permissions.length;
+
+	for(i; i<j; i++) {
+		if(permissions[i].profileId == id) {
+			appData.permissions.splice(i,1);
+			if(removePermissionsHtml) {
+				var permissionDiv = objectsForLater.places.permission[id].parentNode; //one node higher
+				permissionDiv.parentNode.removeChild(permissionDiv);
+			}
+			i--; //compensate for the missing element
+			j--;
+		}
+	}
+	appData.places.profileToDelete = undefined;
 }
 
 function placesAddEditPermission() {
@@ -932,8 +972,13 @@ function placesUpdatePermission(id, permission) {
 	if(!isNaN(permission)) permissionObj.perm = permission;
 }
 
-function placesRemovePermission() {
-	//a
+function placesDeletePermission() {
+	var id = appData.places.permissionToDelete;
+	var permission = getObjFromArrayById(id, appData.permissions, true);
+	appData.permissions.splice(permission.pos,1);
+	var permissionDiv = objectsForLater.places.permissions[id].parentNode; //one node higher
+	permissionDiv.parentNode.removeChild(permissionDiv);
+	appData.places.permissionToDelete = undefined;
 }
 
 function profileEditPopup(id) {
@@ -979,4 +1024,14 @@ function permissionEditPopup(newPermissionOrId) {
 		objectsForLater.popupAddPermissionAction.value = permValue;
 	}
 	showPopup(objectsForLater.popupAddPermission);
+}
+
+function permissionDeletePopup(id) {
+	appData.places.permissionToDelete = id; //TODO meh
+	showPopup(objectsForLater.popupDeletePermission);
+}
+
+function profileDeletePopup(id) {
+	appData.places.profileToDelete = id;
+	showPopup(objectsForLater.popupDeleteProfile);
 }
