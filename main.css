@@ -78,11 +78,40 @@ html, body {
 }
 body {
 	font-family: 'OpenSansRegular';
+	overflow: hidden;
 }
 
 h1 {
 	font-family: 'OpenSansLight';
 	font-size: 150%;
+}
+
+h3 {
+	font-size: 120%;
+}
+
+select {
+	width: 100%;
+	background: #0084ff;
+	font-size: 120%;
+	border: 1px solid #000;
+	color: #fff;
+	margin: 2px 0;
+}
+input {
+	border: 1px solid #0084ff;
+	height: 1.9em;
+	text-indent: 5px;
+	margin: 2px 0;
+}
+option {
+	color: #0084ff;
+	background-color: #FFFFFF;
+}
+textarea {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 
 .webinoslogo {
@@ -132,6 +161,7 @@ h1 {
 
 .content-container {
 	height: 100%;
+	overflow: auto;
 }
 .content {
 	min-height: 100%;
@@ -301,6 +331,8 @@ h1 {
 	display: inline-block;
 	width: 31%;
 	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
 .tabs > div:hover {
 	color: #0084FF;
@@ -424,6 +456,14 @@ h1 {
 	border: 2px solid #333;
 }
 
+/*@-webkit-keyframes status-icon-active-blink {
+	50% { background: #009EFF; }
+}
+.qstatus-icon.active {
+	-webkit-animation: status-icon-active-blink .4s step-end infinite alternate;
+}*/
+
+
 /* http://proto.io/freebies/onoff/ - modified & expanded */
 .onoffswitch {
 position: relative; width: 70px;
@@ -436,6 +476,7 @@ display: none;
 .onoffswitch-label {
 display: block; overflow: hidden; cursor: pointer;
 border: 1px solid #212121;
+border-radius: 5px;
 }
 .onoffswitch-inner {
 width: 200%; margin-left: -100%;
@@ -465,6 +506,7 @@ border: 2px solid #444;
 position: absolute; top: 0; bottom: 0; right: 46px;
 -moz-transition: all 0.2s ease-in 0s; -webkit-transition: all 0.2s ease-in 0s;
 -o-transition: all 0.2s ease-in 0s; transition: all 0.2s ease-in 0s;
+border-radius: 5px;
 }
 .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
 margin-left: 0;
@@ -536,6 +578,9 @@ color: #bbb;
 .popup h1 {
 	margin-bottom: 1em;
 }
+.popup b {
+	font-weight: bold;
+}
 .popup .button {
 	margin-top: 2em;
 	text-shadow: 0 1px black;
@@ -544,7 +589,7 @@ color: #bbb;
 	background: #0084FF;
 }
 
-#popup-addToPolicy {
+#popup-addProfile, #popup-deleteProfile, #popup-deletePermission/*, #popup-addToPolicy*/ {
 	width: 300px;
 }
 #popup-addToPolicy .button {
@@ -554,7 +599,7 @@ color: #bbb;
 	margin-top: 1em;
 }
 
-#popup-policyEntity-edit {
+#popup-addPermission {
 	width: 350px;
 }
 
@@ -572,21 +617,23 @@ color: #bbb;
 	cursor: default;
 }
 
-#policyEntity-edit-details {
+#popup-addPermission-details-content {
 	display: none;
 }
 
-.popup-policyEntity-edit-row label, .popup-policyEntity-edit-row input, .popup-policyEntity-edit-row select {
+.popup-input-row label, .popup-input-row input, .popup-input-row select {
 	display: inline-block;
 }
-.popup-policyEntity-edit-row label {
+.popup-input-row label {
 	width: 38%;
 }
-.popup-policyEntity-edit-row input, .popup-policyEntity-edit-row select {
+.popup-input-row input, .popup-input-row select {
 	width: 59%;
 	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
 }
-#policyEntity-edit-detailsTextarea {
+#popup-addPermission-detailsTextarea {
 	width: 100%;
 	height: 7em;
 }
@@ -595,29 +642,97 @@ color: #bbb;
 /* PLACES */
 
 .places-titles {
-	border-bottom: 4px solid #EEE;
+	/*border-bottom: 4px solid #EEE;
 	margin-bottom: 10px;
-	padding-bottom: 10px;
+	padding-bottom: 10px;*/
+	overflow: hidden;
+	margin-top: 1em;
+}
+.places-profiles-title, .places-allow-title, .places-deny-title, .places-prompt-title {
+	float: left;
+	margin-left: 1%;
 }
 
-#places-categories, #places-allow, #places-deny {
-	display: inline-block;
-	vertical-align: top;
-	min-height: 90%;
+#places-profiles, #places-allow, #places-deny, #places-prompt {
+	min-height: 88%;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	float: left;
+	margin-left: 1%;
 }
-#places-categories,
-.places-categories-title {
-	width: 20%;
+#places-profiles,
+.places-profiles-title {
+	width: 21%;
 }
-#places-allow, #places-deny,
-.places-allow-title, .places-deny-title {
-	width: 38%;
+#places-allow, #places-deny, #places-prompt,
+.places-allow-title, .places-deny-title, .places-prompt-title {
+	width: 25%;
+}
+.places-profiles-title {
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	padding: 0.5em 0.3em 0.2em;
+	color: #0084ff;
+	font-size: 130%;
+	position: relative;
+	/*font-family: 'OpenSansRegular';
+	border-bottom: 1px dashed #0084ff;*/
+}
+#places-profiles span, #places-allow span, #places-deny span, #places-prompt span,
+.places-profiles-title span, .places-allow-title span, .places-deny-title span, .places-prompt-title span {
+	display: none;
+	position: absolute;
+	z-index: 10;
+	top: 5px;
+	right: 0;
+	font-size: 30px;
+	width: 1em;
+	text-align: center;
+	cursor: pointer;
+}
+
+#places-profiles span, #places-allow span, #places-deny span, #places-prompt span {
+	top: 0;
+	font-size: 10px;
+	width: auto;
+	border: 1px dotted #0084ff;
+	/*background: rgba(0,0,0,0.8);*/
+	background: #fff;
+}
+#places-profiles div:hover span, #places-allow div:hover span, #places-deny div:hover span, #places-prompt div:hover span {
+	display: block;
+}
+.places-profiles-title span, .places-allow-title span, .places-deny-title span, .places-prompt-title span {
+	display: block;
+	opacity: 0.2;
+}
+.places-profiles-title:hover span, .places-allow-title:hover span, .places-deny-title:hover span, .places-prompt-title:hover span {
+	opacity: 1;
+}
+#places-profiles img, #places-allow img, #places-deny img, #places-prompt img {
+	width: 10px;
+	margin: 8px;
+}
+.places-allow-title, .places-deny-title, .places-prompt-title {
+	padding: 0.3em 0.5em 0.3em;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	position: relative;
 }
 .places-allow-title {
-	color: #0f0;
+	/*color: #0f0;*/
+	background: rgba(0, 255, 0, 0.3);
 }
 .places-deny-title {
-	color: #f00;
+	/*color: #f00;*/
+	background: rgba(255, 0, 0, 0.3);
+}
+.places-prompt-title {
+	/*color: #ff0;*/
+	background: rgba(255, 255, 0, 0.3);
 }
 #places-allow {
 	background: rgba(0, 255, 0, 0.1);
@@ -625,12 +740,42 @@ color: #bbb;
 #places-deny {
 	background: rgba(255, 0, 0, 0.1);
 }
+#places-prompt {
+	background: rgba(255, 255, 0, 0.1);
+}
+#places-allow > div, #places-deny > div, #places-prompt > div {
+	padding: 0.5em;
+	border-left: 3px solid rgba(0,0,0,0.1);
+	border-bottom: 1px dashed rgba(0,0,0,0.1);
+	position: relative;
+	font-size: 80%;
+	cursor: move;
+}
+#places-allow div b, #places-deny div b, #places-prompt div b {
+	display: block;
+	font-weight: bold;
+	font-size: 150%;
+}
+#places-allow > div {
+	border-color: rgba(0, 255, 0, 0.3);
+}
+#places-deny > div {
+	border-color: rgba(255, 0, 0, 0.3);
+}
+#places-prompt > div {
+	border-color: rgba(255, 255, 0, 0.3);
+}
+.column.over {
+	border: 1px dotted #aaa;
+}
 
-#places-categories > div {
+#places-profiles > div {
 	padding: 0.5em;
 	cursor: pointer;
+	font-size: 90%;
+	position: relative;
 }
-#places-categories .selected {
+#places-profiles .selected {
 	background: #0084ff;
 	color: #fff;
 	cursor: default;
@@ -639,11 +784,11 @@ color: #bbb;
 
 /* STORES */
 
-#storesSettings > div {
+#storeListContainer > div {
 	position: relative;
 	border-top: 1px dotted #DDD;
 }
-#storesSettings > div:first-child, #storesSettings > div:last-child {
+#storeListContainer > div:first-child {
 	border-top: none;
 }
 
@@ -662,16 +807,20 @@ color: #bbb;
 	margin: 0;
 }
 
-#storesSettings > div:not(#foo) > input {
+#storesSettings h3 {
+	margin-bottom: 0.5em;
+}
+
+#storeListContainer > div:not(#foo) > input {
 	opacity: 0;
 }
-#storesSettings > div:not(#foo) > input + label {
+#storeListContainer > div:not(#foo) > input + label {
     background: url(img/check.png) 100% 50% no-repeat;
     padding: 12px 30px 12px 0;
     font-size: 120%;
 	font-family: 'OpenSansLight';
 }
-#storesSettings > div:not(#foo) > input[type=checkbox]:checked + label {
+#storeListContainer > div:not(#foo) > input[type=checkbox]:checked + label {
     background: url(img/check-s.png) 100% 50% no-repeat;
 }
 
@@ -790,7 +939,6 @@ color: #bbb;
 		background: #7F7F7F;
 		text-align: center;
 		width: 100%;
-		overflow: hidden;
 	}
 
 	.webinoslogo {
@@ -817,7 +965,6 @@ color: #bbb;
 	}
 
 	.content-container {
-		height: 100%;
 		display: inline-block;
 		width: 660px;
 		text-align: left;
@@ -963,8 +1110,7 @@ color: #bbb;
 	}
 
 	#quickSettings-switches, #quickSettings-status,
-	.quickSettings-switches-title, .quickSettings-status-title,
-	.places-categories-title, .places-allow-title, .places-deny-title {
+	.quickSettings-switches-title, .quickSettings-status-title {
 		display: inline-block;
 		vertical-align: top;
 	}
