@@ -56,6 +56,80 @@ mocked.people = [{
 	lastAccess: 1354421200428
 }];
 
+mocked.profiles = [{
+	id: 1,
+	name: "Home"
+}, {
+	id: 2,
+	name: "Office"
+}, {
+	id: 3,
+	name: "Trip to dad's"
+}, {
+	id: 4,
+	name: "Misc"
+}];
+
+mocked.apps = {
+	'kidsinfocus': {
+		name: 'Kids In Focus'
+	},
+	'webinostravel': {
+		name: 'Webinos Travel'
+	},
+	'littlespy': {
+		name: 'Spy on your loved ones'
+	},
+	'ouroboros': {
+		name: 'Prodigy of Ouroboros'
+	}
+}
+
+mocked.permissions = [{
+	id: 0,
+	profileId: 3,
+	name: "Navigation",
+	app: "kidsinfocus",
+	service: "gps",
+	perm: 1 //1 allow, 0 prompt, -1 deny
+}, {
+	id: 1,
+	profileId: 3,
+	name: "Wifi",
+	app: "kidsinfocus",
+	service: "wifi",
+	perm: 1
+}, {
+	id: 2,
+	profileId: 3,
+	name: "Photos",
+	app: "webinostravel",
+	service: "photo",
+	perm: 1
+}, {
+	id: 3,
+	profileId: 3,
+	name: "Camera",
+	app: "kidsinfocus",
+	service: "video",
+	perm: 0
+}, {
+	id: 4,
+	profileId: 3,
+	name: "GPS",
+	app: "littlespy",
+	service: "gps",
+	perm: -1
+}, {
+	id: 5,
+	profileId: 1,
+	name: "Camera",
+	app: "kidsinfocus",
+	service: "video",
+	perm: 1
+}];
+
+
 //mock generator
 var generateMockedData = function(arrayObjectName, quantity) {
 	var i = 0,
@@ -82,34 +156,12 @@ var generateMockedData = function(arrayObjectName, quantity) {
 generateMockedData('stores', 3);
 generateMockedData('people', 8);
 
-/*
-//mock generator
-var generateMockedData = function(arrayObjectName, quantity) {
-	var i = 0,
-		randomnumber,
-		destArr = mocked[arrayObjectName];
-
-	for(i; i<quantity; i++) {
-		if(arrayObjectName == 'people') {
-			destArr.push({
-				name: "Loremford Ipsumov "+(i+1),
-				email: "lorips"+(i+1)+"@nonexistent.com",
-				lastAccess: 1341732300428-(123456789*i)
-			});
-		} //else {
-	}
-}
-
-// generate more mocked data
-generateMockedData('people', 8);
-*/
 
 //------------------------->8---CUT-HERE---------------------------------------------------------
 
 
-var UIdata = {};
-UIdata = mocked; //to be changed during the integration
-
+var appData = {};
+appData = mocked; //to be changed during the integration
 
 /* GENERAL */
 
@@ -150,16 +202,30 @@ function selectItem(elements, active) {
 		console.log("selectItem: bad object type");
 	}
 
-	for(var i in elements) {
+	for(var i=0, j=elements.length; i<j; i++) {
 		if(i == active) {
 			addClass(elements[i], 'selected');
 			continue;
 		}
-		if(typeof elements[i] != 'object') { //to skip for now possible array's "length"; TODO! do it better
-			continue;
-		}
 		removeClass(elements[i], 'selected');
 	}
+}
+
+function getObjFromArrayById(id, array, returnWithPosition) {
+	var i = 0,
+		j = array.length;
+	for(i; i<j; i++) {
+		if(array[i].id == id) {
+			var results;
+			if(returnWithPosition) {
+				result = {obj:array[i], pos:i};
+			} else {
+				results = array[i];
+			}
+			return result;
+		}
+	}
+	return false;
 }
 
 function showPopup(popup) {
@@ -175,7 +241,12 @@ function showPopup(popup) {
 			j=closeButtons.length;
 
 		for(i; i<j; i++) {
-			closeButtons[i].onclick = function() {closePopup(popup);};
+			closeButtons[i].onclick = (function(thisPopup, buttonAction) {
+				return function() {
+					if(typeof buttonAction == "function") buttonAction(); //previously declared onclick function
+					closePopup(thisPopup);
+				};
+			})(popup, closeButtons[i].onclick);
 		}
 
 		popup.closeButtonsInitialized = true;
@@ -207,7 +278,7 @@ function showPage(linkId) {
 }
 
 function disableQuickSettingsSwitch(name) {
-	var quickSettings = UIdata.quickSettings,
+	var quickSettings = appData.quickSettings,
 		i = 0,
 		j = quickSettings.length;
 
@@ -255,6 +326,86 @@ function drawPermissionButtons(container, buttons, active) {
 
 	container.appendChild(docFragment);
 }
+
+
+/* DRAG & DROP */
+
+
+function handleDragStart(e) { // this / e.target is the source node.
+	this.style.opacity = '0.4';
+	appData.dragSrcEl = this;
+	e.dataTransfer.effectAllowed = 'move';
+	e.dataTransfer.setData("text/plain", ""); //firefox needs this
+	//console.log('drag start');
+	//console.log(this);
+}
+
+function handleDragEnter(e) { // this / e.target is the current hover target.
+	if (e.preventDefault) {
+		e.preventDefault(); // Necessary. Allows us to drop.
+	}
+	addClass(this, 'over');
+	appData.dragDestEl = this;
+}
+
+function handleDragOver(e) { // this / e.target is the current hover target.
+	if (e.preventDefault) {
+		e.preventDefault(); // Necessary. Allows us to drop.
+	}
+	e.dataTransfer.dropEffect = 'move';  // See the section on the DataTransfer object.
+	return false;
+}
+
+function handleDragLeave(e) { // this / e.target is previous target element.
+	removeClass(this, 'over');
+}
+
+function handleDrop(e) { // this / e.target is current target element.
+	if (e.stopPropagation) {
+		e.stopPropagation(); // stops the browser from redirecting.
+	}
+	if (appData.dragSrcEl != this) {
+		this.appendChild(appData.dragSrcEl);
+		var id = appData.dragSrcEl.id;
+		var columnId = this.id;
+		var permission;
+		if(columnId.indexOf('allow') != -1) {
+			permission = 1;
+		} else if(columnId.indexOf('prompt') != -1) {
+			permission = 0;
+		} else if(columnId.indexOf('deny') != -1) {
+			permission = -1;
+		}
+		placesUpdatePermission(id, permission);
+	}
+	//console.log('drag drop');
+	//console.log(this);
+	return false;
+}
+
+function handleDragEnd(e) { // this/e.target is the source node.
+	this.style.opacity = '1';
+	removeClass(appData.dragDestEl, 'over');
+	//console.log('drag end');
+	//console.log(this);
+}
+
+function dragDropInitColumns() {
+	var cols = document.querySelectorAll('.column');
+	[].forEach.call(cols, function(col) {
+		col.addEventListener('dragenter', handleDragEnter, false)
+		col.addEventListener('dragover', handleDragOver, false);
+		col.addEventListener('dragleave', handleDragLeave, false);
+		col.addEventListener('drop', handleDrop, false);
+	});
+}
+/*function dragDropInitDraggables() {
+	var draggables = document.querySelectorAll('[draggable]');
+	[].forEach.call(draggables, function(draggable) {
+		draggable.addEventListener('dragstart', handleDragStart, false);
+		draggable.addEventListener('dragend', handleDragEnd, false);
+	});
+}*/
 
 
 /* DATE MANIPULATION */
@@ -353,39 +504,62 @@ var enableTabs = function() {
 }();
 
 var enablePopups = function() {
+	//init
 	objectsForLater.popupOverlay = document.getElementById('popup_overlay');
 	objectsForLater.popupContainer = document.getElementById('popup_container');
 
+	//popups
 	objectsForLater.popupTest = document.getElementById('popup-test');
-	objectsForLater.popupAddToPolicy = document.getElementById('popup-addToPolicy');
-	objectsForLater.popupPolicyEntity = document.getElementById('popup-policyEntity');
-	objectsForLater.popupPolicyEntityEdit = document.getElementById('popup-policyEntity-edit');
+		//objectsForLater.popupAddToPolicy = document.getElementById('popup-addToPolicy');
+		//objectsForLater.popupPolicyEntity = document.getElementById('popup-policyEntity');
+	objectsForLater.popupAddPermission = document.getElementById('popup-addPermission');
+	objectsForLater.popupAddProfile = document.getElementById('popup-addProfile');
+	objectsForLater.popupDeletePermission = document.getElementById('popup-deletePermission');
+	objectsForLater.popupDeleteProfile = document.getElementById('popup-deleteProfile');
 
+	//buttons opening popups
 	document.getElementById('t-test').onclick = function() {showPopup(objectsForLater.popupTest)};
-	document.getElementById('t-add').onclick = function() {showPopup(objectsForLater.popupAddToPolicy)};
+		//document.getElementById('t-add').onclick = function() {showPopup(objectsForLater.popupAddToPolicy)};
 
-	document.getElementById('popup-addToPolicy-category').onclick = function() {policyEntityNewdit('category');}
-	document.getElementById('popup-addToPolicy-object').onclick = function() {policyEntityNewdit('object');}
-	document.getElementById('popup-addToPolicy-service').onclick = function() {policyEntityNewdit('service');}
+	objectsForLater.popupAddProfileId = document.getElementById('popup-addProfile-id');
+	objectsForLater.popupAddProfileName = document.getElementById('popup-addProfile-name');
+	document.getElementById('placesAddProfile').onclick = function() {profileEditPopup()};
+
+	objectsForLater.popupAddPermissionId = document.getElementById('popup-addPermission-id');
+	objectsForLater.popupAddPermissionName = document.getElementById('popup-addPermission-name');
+	objectsForLater.popupAddPermissionApp = document.getElementById('popup-addPermission-app');
+	objectsForLater.popupAddPermissionType = document.getElementById('popup-addPermission-type');
+	objectsForLater.popupAddPermissionAction = document.getElementById('popup-addPermission-action');
+	document.getElementById('placesAddAllow').onclick = function() {permissionEditPopup('allow')};
+	document.getElementById('placesAddPrompt').onclick = function() {permissionEditPopup('prompt')};
+	document.getElementById('placesAddDeny').onclick = function() {permissionEditPopup('deny')};
+	document.getElementById('popup-deletePermission-confirm').onclick = function() {placesDeletePermission()};
+	document.getElementById('popup-deleteProfile-confirm').onclick = function() {placesDeleteProfile()};
+
+	//buttons inside popups
+	document.getElementById('popup-addProfile-save').onclick = function() {placesAddEditProfile()};
+	document.getElementById('popup-addPermission-save').onclick = function() {placesAddEditPermission()};
+
+		//document.getElementById('popup-addToPolicy-profile').onclick = function() {policyEntityNewdit('profile')};
+		//document.getElementById('popup-addToPolicy-object').onclick = function() {policyEntityNewdit('object')};
+		//document.getElementById('popup-addToPolicy-service').onclick = function() {policyEntityNewdit('service')};
 
 	/* policy entity edit tabs - quite verbose... but it seems like I don't need a function for anything similar to this */
-	var policyEntityEditSummaryTab = document.getElementById('popup-policyEntity-edit-summary');
-	var policyEntityEditDetailsTab = document.getElementById('popup-policyEntity-edit-details');
+	var popupAddPermissionSummaryTab = document.getElementById('popup-addPermission-summary-tab');
+	var popupAddPermissionDetailsTab = document.getElementById('popup-addPermission-details-tab');
+	var popupAddPermissionTabs = [popupAddPermissionSummaryTab, popupAddPermissionDetailsTab];
+	objectsForLater.popupAddPermissionSummaryPage = document.getElementById('popup-addPermission-summary-content');
+	objectsForLater.popupAddPermissionDetailsPage = document.getElementById('popup-addPermission-details-content');
 
-	var policyEntityEditTabs = [policyEntityEditSummaryTab, policyEntityEditDetailsTab];
-
-	objectsForLater.policyEntityEditSummaryPage = document.getElementById('policyEntity-edit-summary');
-	objectsForLater.policyEntityEditDetailsPage = document.getElementById('policyEntity-edit-details');
-
-	policyEntityEditSummaryTab.onclick = function() {
-		selectItem(policyEntityEditTabs, 0);
-		objectsForLater.policyEntityEditSummaryPage.style.display = 'block';
-		objectsForLater.policyEntityEditDetailsPage.style.display = 'none';
+	popupAddPermissionSummaryTab.onclick = function() {
+		selectItem(popupAddPermissionTabs, 0);
+		objectsForLater.popupAddPermissionSummaryPage.style.display = 'block';
+		objectsForLater.popupAddPermissionDetailsPage.style.display = 'none';
 	}
-	policyEntityEditDetailsTab.onclick = function() {
-		selectItem(policyEntityEditTabs, 1);
-		objectsForLater.policyEntityEditSummaryPage.style.display = 'none';
-		objectsForLater.policyEntityEditDetailsPage.style.display = 'block';
+	popupAddPermissionDetailsTab.onclick = function() {
+		selectItem(popupAddPermissionTabs, 1);
+		objectsForLater.popupAddPermissionSummaryPage.style.display = 'none';
+		objectsForLater.popupAddPermissionDetailsPage.style.display = 'block';
 	}
 	/* policy entity edit tabs END */
 
@@ -404,27 +578,12 @@ var toolbarShowHide = function() {
 	};
 }();
 
-function policyEntityNewdit(newTypeOrId, previousPopup) {
-	var previousPopup;
-
-	if(typeof newTypeOrId != 'object') { //new
-		previousPopup = objectsForLater.popupAddToPolicy;
-		//generate new id
-	} else { //edit
-		previousPopup = objectsForLater.popupPolicyEntity;
-		//fill in
-	}
-
-	previousPopup.style.display = "none";
-	showPopup(objectsForLater.popupPolicyEntityEdit);
-}
-
 var drawQuickSettings = function() {
 	var quickSettingsSwitchesContainer = document.getElementById('quickSettings-switches-content'),
 		quickSettingsStatusContainer = document.getElementById('quickSettings-status-content'),
 		html = '',
-		quickSettings = UIdata.quickSettings,
-		quickStatus = UIdata.quickStatus,
+		quickSettings = appData.quickSettings || [],
+		quickStatus = appData.quickStatus || [],
 		i = 0,
 		j = quickSettings.length,
 		checked = '',
@@ -472,9 +631,9 @@ var drawQuickSettings = function() {
 
 
 var drawStoreList = function() {
-	var storeListContainer = document.getElementById('storesSettings'),
+	var storeListContainer = document.getElementById('storeListContainer'),
 		html = '',
-		stores = UIdata.stores,
+		stores = appData.stores || [],
 		i = 0,
 		j = stores.length,
 		checked;
@@ -492,14 +651,6 @@ var drawStoreList = function() {
 			'</div>';
 	}
 
-	html += '' +
-		'<hr>' +
-		'<div id="unknown-location">' +
-			'<div>Allow apps to be installed from other locations</div>' +
-			'<div class="permissions-controls" id="unk-loc-per-con"></div>' +
-			'<div id="unk-loc-explained" class="info">"Allow once" will allow installation for the next application only, then it will change to "Deny".</div>' +
-		'</div>';
-
 	storeListContainer.innerHTML = html;
 
 	drawPermissionButtons('unk-loc-per-con', [{n:"Allow",c:"allow"}, {n:"Allow once",c:"prompt"}, {n:"Deny",c:"deny"}], 1);
@@ -508,7 +659,7 @@ var drawStoreList = function() {
 var drawPeopleList = function() {
 	var peopleListContainer = document.getElementById('people-list'),
 		html = '',
-		people = UIdata.people,
+		people = appData.people || [],
 		i = 0,
 		j = people.length,
 		pic,
@@ -544,3 +695,348 @@ var listOptions = {
 };
 
 var peopleList = new List('peoplePolicies', listOptions);
+// end of list.js
+
+
+var drawPlaces = function() {
+	var docFrag = document.createDocumentFragment(),
+		profiles = appData.profiles || [],
+		i = 0,
+		j = profiles.length;
+
+	appData.places = {};
+	objectsForLater.places = {};
+	objectsForLater.places.profileListContainer = document.getElementById('places-profiles');
+	objectsForLater.places.allow = document.getElementById('places-allow');
+	objectsForLater.places.prompt = document.getElementById('places-prompt');
+	objectsForLater.places.deny = document.getElementById('places-deny');
+	objectsForLater.places.profiles = {};
+	objectsForLater.places.permissions = {};
+
+	for(i; i<j; i++) {
+		createProfileListEntry(profiles[i], docFrag);
+		if(i == 0) {
+			setActiveProfile(profiles[i].id); //initial highlight
+		}
+	}
+
+	objectsForLater.places.profileListContainer.appendChild(docFrag);
+	dragDropInitColumns();
+
+	if(profiles.length > 0) {
+		drawPlacesPermissions(appData.places.currentProfileId);
+	}
+
+	//popup form
+	var docFrag = document.createDocumentFragment(),
+		option;
+	for (var key in appData.apps) {
+		if (appData.apps.hasOwnProperty(key)) {
+			option = document.createElement("option");
+			option.setAttribute('value', key);
+			option.textContent = appData.apps[key].name;
+			docFrag.appendChild(option);
+		}
+	}
+	objectsForLater.popupAddPermissionApp.appendChild(docFrag);
+}();
+
+function createProfileListEntry(profile, parentElement) {
+	var entry = document.createElement("div");
+	entry.textContent = profile.name;
+	entry.onclick = function() {placesOpenProfile(profile.id)};
+	var controls = document.createElement("span");
+	var edit = document.createElement("img");
+	edit.src = "img/edit.png";
+	edit.setAttribute('alt', 'Edit');
+	edit.onclick = function(e) {e.stopPropagation(); profileEditPopup(profile.id);};
+	var del = document.createElement("img");
+	del.src = "img/delete.png";
+	del.setAttribute('alt', 'Delete');
+	del.onclick = function(e) {e.stopPropagation(); profileDeletePopup(profile.id);};
+	controls.appendChild(edit);
+	controls.appendChild(del);
+	entry.appendChild(controls);
+	parentElement.appendChild(entry);
+
+	objectsForLater.places.profiles[profile.id] = entry;
+
+	return entry;
+}
+function setActiveProfile(id) {
+	appData.places.currentProfileId = id;
+	var obj = objectsForLater.places.profiles[id];
+	obj.className = 'selected'; //addClass ?
+	objectsForLater.places.currentProfileDiv = obj;
+}
+
+function createPermissionEntry(permission, docFrag) {
+	var entry,
+		name,
+		controls,
+		edit,
+		del;
+	entry = document.createElement("div");
+	entry.setAttribute('draggable', 'true');
+	entry.id = permission.id;
+	name = document.createElement("div");
+	name.innerHTML = '<b>'+permission.name+'</b>@'+appData.apps[permission.app].name;
+	entry.appendChild(name);
+	controls = document.createElement("span");
+	edit = document.createElement("img");
+	edit.src = "img/edit.png";
+	edit.setAttribute('alt', 'Edit');
+	edit.onclick = function(e) {permissionEditPopup(permission.id);};
+	del = document.createElement("img");
+	del.src = "img/delete.png";
+	del.setAttribute('alt', 'Delete');
+	del.onclick = function(e) {permissionDeletePopup(permission.id);};
+	controls.appendChild(edit);
+	controls.appendChild(del);
+	entry.appendChild(controls);
+
+	docFrag.appendChild(entry);
+
+	entry.addEventListener('dragstart', handleDragStart, false);
+	entry.addEventListener('dragend', handleDragEnd, false);
+
+	objectsForLater.places.permissions[permission.id] = name;
+
+	return entry;
+}
+
+function drawPlacesPermissions(profileId) {
+	if(!profileId) return false;
+
+	objectsForLater.places.allow.innerHTML = '';
+	objectsForLater.places.prompt.innerHTML = '';
+	objectsForLater.places.deny.innerHTML = '';
+
+	var docFragAllow = document.createDocumentFragment(),
+		docFragPrompt = document.createDocumentFragment(),
+		docFragDeny = document.createDocumentFragment(),
+		permissions = appData.permissions || [],
+		i = 0,
+		j = permissions.length;
+
+	for(i; i<j; i++) {
+		if(permissions[i].profileId == profileId) {
+			if(permissions[i].perm == 1) {
+				docFrag = docFragAllow;
+			} else if(permissions[i].perm == 0) {
+				docFrag = docFragPrompt;
+			} else if(permissions[i].perm == -1) {
+				docFrag = docFragDeny;
+			}
+
+			createPermissionEntry(permissions[i], docFrag);
+		}
+	}
+	objectsForLater.places.allow.appendChild(docFragAllow);
+	objectsForLater.places.prompt.appendChild(docFragPrompt);
+	objectsForLater.places.deny.appendChild(docFragDeny);
+
+	//dragDropInitDraggables();
+}
+
+function placesOpenProfile(id) {
+	//de-highlight old one
+	if(objectsForLater.places.currentProfileDiv) {
+		removeClass(objectsForLater.places.currentProfileDiv, 'selected');
+	}
+	//set active + higlight + draw
+	setActiveProfile(id);
+	drawPlacesPermissions(id);
+}
+
+function placesAddEditProfile() {
+	var newName = objectsForLater.popupAddProfileName.value;
+	if(newName == '') return;
+
+	var id = objectsForLater.popupAddProfileId.value,
+		profile;
+	if(!id) { //new
+		profile = {};
+		profile.id = new Date().valueOf();
+		profile.name = newName;
+
+		appData.profiles.push(profile);
+		//draw
+		var docFrag = document.createDocumentFragment();
+		createProfileListEntry(profile, docFrag);
+
+		if(!appData.places.currentProfileId) {
+			setActiveProfile(profile.id);
+		}
+
+		objectsForLater.places.profileListContainer.appendChild(docFrag);
+	} else { //edit
+		profile = getObjFromArrayById(id, appData.profiles);
+		if(!profile) return;
+
+		profile.name = newName;
+		//re-draw
+		objectsForLater.places.profiles[id].textContent = newName;
+	}
+}
+
+function placesDeleteProfile() {
+	var id = appData.places.profileToDelete;
+	//delete profile
+	var profile = getObjFromArrayById(id, appData.profiles, true);
+	appData.profiles.splice(profile.pos,1);
+	var profileDiv = objectsForLater.places.profiles[id];
+	profileDiv.parentNode.removeChild(profileDiv);
+	delete objectsForLater.places.profiles[id]; //remove reference
+	objectsForLater.places.currentProfileDiv = undefined;
+
+	var removePermissionsHtml = false;
+	if(appData.places.currentProfileId == id) { //if current profile is being deleted select first one
+		if(appData.profiles.length > 0) {
+			placesOpenProfile(appData.profiles[0].id);
+		} else {
+			appData.places.currentProfileId = undefined;
+			removePermissionsHtml = true; //no other profile, so we must clear permissions from the view
+		}
+	}
+	//remove permissions AFTER profile change, to avoid pointless redraws
+	var permissions = appData.permissions,
+		i = 0,
+		j = permissions.length;
+
+	for(i; i<j; i++) {
+		if(permissions[i].profileId == id) {
+			var permId = permissions[i].id;
+			if(removePermissionsHtml) {
+				var permissionDiv = objectsForLater.places.permissions[permId].parentNode; //one node higher
+				permissionDiv.parentNode.removeChild(permissionDiv);
+			}
+			delete objectsForLater.places.permissions[permId]; //remove reference
+			appData.permissions.splice(i,1);
+			i--; //compensate for the missing element
+			j--;
+		}
+	}
+	appData.places.profileToDelete = undefined;
+}
+
+function placesAddEditPermission() {
+	var newName = objectsForLater.popupAddPermissionName.value;
+	if(newName == '') return; //TODO or something default?
+
+	var app = objectsForLater.popupAddPermissionApp.value;
+	var type = objectsForLater.popupAddPermissionType.value;
+	var perm = objectsForLater.popupAddPermissionAction.value;
+	var destColumn;
+	if(perm == 'allow') {
+		perm = 1;
+		destColumn = objectsForLater.places.allow;
+	} else if(perm == 'prompt') {
+		perm = 0;
+		destColumn = objectsForLater.places.prompt;
+	} else if(perm == 'deny') {
+		perm = -1;
+		destColumn = objectsForLater.places.deny;
+	}
+
+	var id = objectsForLater.popupAddPermissionId.value,
+		permission;
+
+	if(!id) { //new
+		permission = {};
+		permission.id = new Date().valueOf();
+		permission.profileId = appData.places.currentProfileId,
+		permission.name = newName;
+		permission.app = app;
+		permission.service = type;
+		permission.perm = perm;
+
+		appData.permissions.push(permission);
+
+		//draw
+		var docFrag = document.createDocumentFragment();
+		createPermissionEntry(permission, docFrag);
+		destColumn.appendChild(docFrag);
+	} else { //edit
+		permission = getObjFromArrayById(id, appData.permissions);
+		if(!permission) return;
+
+		permission.name = newName;
+		permission.app = app;
+		permission.service = type;
+		permission.perm = perm;
+		//re-draw
+		objectsForLater.places.permissions[id].innerHTML = '<b>'+permission.name+'</b>@'+appData.apps[permission.app].name;
+	}
+}
+
+function placesUpdatePermission(id, permission) {
+	var permissionObj = getObjFromArrayById(id, appData.permissions);
+	if(!permissionObj) return;
+	if(!isNaN(permission)) permissionObj.perm = permission;
+}
+
+function placesDeletePermission() {
+	var id = appData.places.permissionToDelete;
+	var permission = getObjFromArrayById(id, appData.permissions, true);
+	appData.permissions.splice(permission.pos,1);
+	var permissionDiv = objectsForLater.places.permissions[id].parentNode; //one node higher
+	permissionDiv.parentNode.removeChild(permissionDiv);
+	delete objectsForLater.places.permissions[id]; //remove reference
+	appData.places.permissionToDelete = undefined;
+}
+
+function profileEditPopup(id) {
+	if(!id) { //new
+		objectsForLater.popupAddProfileId.value = '';
+		objectsForLater.popupAddProfileName.value = '';
+	} else {
+		var profile = getObjFromArrayById(id, appData.profiles);
+		objectsForLater.popupAddProfileId.value = profile.id;
+		objectsForLater.popupAddProfileName.value = profile.name;
+	}
+	showPopup(objectsForLater.popupAddProfile);
+}
+
+function permissionEditPopup(newPermissionOrId) {
+	if(isNaN(newPermissionOrId)) { //new
+		if(newPermissionOrId == "allow" || newPermissionOrId == 'prompt' || newPermissionOrId == 'deny') {
+			objectsForLater.popupAddPermissionAction.value = newPermissionOrId;
+		} else {
+			objectsForLater.popupAddPermissionAction.options[0].selected = "selected";
+		}
+		//reset other fields
+		objectsForLater.popupAddPermissionId.value = '';
+		objectsForLater.popupAddPermissionName.value = '';
+		objectsForLater.popupAddPermissionApp.options[0].selected = "selected";
+		objectsForLater.popupAddPermissionType.options[0].selected = "selected";
+	} else { //edit
+		var permission = getObjFromArrayById(newPermissionOrId, appData.permissions);
+
+		var permValue;
+		if(permission.perm == 1) {
+			permValue = 'allow';
+		} else if(permission.perm == 0) {
+			permValue = 'prompt';
+		} else if(permission.perm == -1) {
+			permValue = 'deny';
+		}
+
+		objectsForLater.popupAddPermissionId.value = permission.id;
+		objectsForLater.popupAddPermissionName.value = permission.name;
+		objectsForLater.popupAddPermissionApp.value = permission.app;
+		objectsForLater.popupAddPermissionType.value = permission.type;
+		objectsForLater.popupAddPermissionAction.value = permValue;
+	}
+	showPopup(objectsForLater.popupAddPermission);
+}
+
+function permissionDeletePopup(id) {
+	appData.places.permissionToDelete = id; //TODO meh
+	showPopup(objectsForLater.popupDeletePermission);
+}
+
+function profileDeletePopup(id) {
+	appData.places.profileToDelete = id;
+	showPopup(objectsForLater.popupDeleteProfile);
+}
